@@ -26,7 +26,7 @@
   .card-title::after{content:'';flex:1;height:1px;background:var(--border);}
   .input-group{display:flex;flex-direction:column;gap:6px;flex:1;min-width:120px;}
   .input-group label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;font-family:'Share Tech Mono',monospace;}
-  input[type="date"],input[type="password"],input[type="text"]{width:100%;padding:11px 14px;background:#060d14;border:1px solid var(--border);border-radius:8px;color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;color-scheme:dark;}
+  input[type="date"],input[type="password"],input[type="text"],input[type="number"]{width:100%;padding:11px 14px;background:#060d14;border:1px solid var(--border);border-radius:8px;color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;color-scheme:dark;}
   input:focus{border-color:var(--accent);}
   .btn{padding:11px 18px;border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;white-space:nowrap;}
   .btn:active{transform:scale(0.97);}
@@ -43,7 +43,6 @@
   @media(max-width:600px){.add-user-grid{grid-template-columns:1fr 1fr;}}
   .preset-btn{padding:5px 12px;background:#060d14;border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;}
   .preset-btn:hover{border-color:var(--accent);color:var(--accent);}
-  /* User Table */
   .user-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;}
   .user-table th{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);}
   .user-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
@@ -56,20 +55,15 @@
   .key-text{font-family:'Share Tech Mono',monospace;color:var(--accent);font-size:11px;}
   .name-text{color:var(--text);font-weight:600;}
   .expiry-text{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);}
-  .expiry-text.ok{color:var(--success);}
-  .expiry-text.warn{color:var(--warn);}
-  .expiry-text.expired{color:var(--danger);}
+  .expiry-text.ok{color:var(--success);}.expiry-text.warn{color:var(--warn);}.expiry-text.expired{color:var(--danger);}
   .action-btns{display:flex;gap:5px;flex-wrap:wrap;}
   .empty-state{text-align:center;padding:30px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;}
-  /* Extend popup */
   .extend-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0a1520;border:1px solid var(--accent);border-radius:12px;padding:24px;z-index:99999;width:320px;box-shadow:0 0 40px rgba(0,255,204,0.2);}
   .extend-popup h3{color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:2px;margin-bottom:16px;}
   .overlay-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99998;}
-  /* Backup */
   .backup-card{border-color:rgba(0,255,136,0.2);}
   .backup-card::before{background:linear-gradient(90deg,transparent,var(--success),transparent);}
   .backup-info{background:#060d14;border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:'Share Tech Mono',monospace;font-size:12px;margin-bottom:14px;line-height:1.7;}
-  /* Log */
   .log-box{background:#030810;border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:'Share Tech Mono',monospace;font-size:12px;max-height:130px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;}
   .log-entry{display:flex;gap:10px;opacity:0;animation:fadeIn 0.3s ease forwards;}
   @keyframes fadeIn{to{opacity:1;}}
@@ -81,6 +75,20 @@
   .stats-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
   .stat-pill{background:#060d14;border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-family:'Share Tech Mono',monospace;font-size:11px;}
   .stat-pill span{color:var(--accent);}
+
+  /* ===== MS CONTROL CARD ===== */
+  .ms-card{border-color:rgba(255,170,0,0.25);}
+  .ms-card::before{background:linear-gradient(90deg,transparent,var(--warn),transparent);}
+  .ms-card .card-title{color:var(--warn);}
+  .ms-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:flex-end;margin-bottom:14px;}
+  @media(max-width:500px){.ms-grid{grid-template-columns:1fr 1fr;}}
+  .ms-current-display{background:#060d14;border:1px solid rgba(255,170,0,0.3);border-radius:8px;padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:13px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+  .ms-val{display:flex;flex-direction:column;gap:2px;}
+  .ms-val-label{font-size:10px;color:var(--muted);letter-spacing:2px;}
+  .ms-val-num{color:var(--warn);font-size:18px;font-weight:bold;}
+  .ms-status-dot{width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+  .ms-note{font-size:11px;color:var(--muted);font-family:'Share Tech Mono',monospace;line-height:1.6;margin-top:6px;padding:8px 12px;background:#030810;border-radius:6px;border-left:2px solid rgba(255,170,0,0.4);}
 </style>
 </head>
 <body>
@@ -118,6 +126,51 @@
         <button class="btn btn-success" onclick="restoreFromBackup()" id="restoreBtn" style="display:none;">↑ Server এ Restore করুন</button>
         <button class="btn btn-primary" onclick="saveBackup()">💾 এখনই Backup নিন</button>
         <button class="btn btn-secondary btn-sm" onclick="clearBackup()">🗑 Backup মুছুন</button>
+      </div>
+    </div>
+
+    <!-- ===== MS CONTROL CARD ===== -->
+    <div class="card ms-card">
+      <div class="card-title">⚡ Click Delay (MS) Control</div>
+
+      <div class="ms-current-display" id="msCurrentDisplay">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="ms-status-dot"></div>
+          <span style="font-size:11px;color:var(--muted);">Server এ সেভ আছে:</span>
+        </div>
+        <div class="ms-val">
+          <span class="ms-val-label">DELAY 1</span>
+          <span class="ms-val-num" id="currentMs1">—</span>
+        </div>
+        <div class="ms-val">
+          <span class="ms-val-label">DELAY 2</span>
+          <span class="ms-val-num" id="currentMs2">—</span>
+        </div>
+      </div>
+
+      <div class="ms-grid">
+        <div class="input-group">
+          <label>Delay 1 (ms)</label>
+          <input type="number" id="msVal1" placeholder="e.g. 990" min="100" max="9999">
+        </div>
+        <div class="input-group">
+          <label>Delay 2 (ms)</label>
+          <input type="number" id="msVal2" placeholder="e.g. 1150" min="100" max="9999">
+        </div>
+        <button class="btn btn-warn" onclick="saveMsValues()" style="padding:11px 20px;">💾 Save</button>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        <span style="font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;align-self:center;">Preset:</span>
+        <button class="preset-btn" onclick="setMsPreset(800,950)">800/950</button>
+        <button class="preset-btn" onclick="setMsPreset(990,1150)">990/1150 (default)</button>
+        <button class="preset-btn" onclick="setMsPreset(1200,1400)">1200/1400</button>
+        <button class="preset-btn" onclick="setMsPreset(1500,1800)">1500/1800</button>
+      </div>
+
+      <div class="ms-note">
+        ℹ️ এখানে Save করলে সব user এর script এ apply হবে। User এর browser reload দিলেই নতুন ms value দিয়ে click করবে।<br>
+        Ctrl+Alt+3 popup userscript থেকে সরানো হয়েছে — এখন শুধু এখান থেকেই ms control হবে।
       </div>
     </div>
 
@@ -167,12 +220,7 @@
       <table class="user-table">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>License Key</th>
-            <th>Expiry / Days Left</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th>#</th><th>Name</th><th>License Key</th><th>Expiry / Days Left</th><th>Status</th><th>Actions</th>
           </tr>
         </thead>
         <tbody id="userTableBody">
@@ -224,6 +272,67 @@ let SERVER_URL = '', ADMIN_SECRET = '';
 const BACKUP_KEY = 'LuckyLoop_AdminBackup_v4';
 let _currentUsers = {};
 let _extendKey = null;
+
+// ==================== MS VALUES ====================
+function setMsPreset(v1, v2) {
+  document.getElementById('msVal1').value = v1;
+  document.getElementById('msVal2').value = v2;
+}
+
+async function fetchMsValues() {
+  try {
+    const res = await fetch(`${SERVER_URL}/admin/get-ms`, {
+      headers: { 'x-admin-secret': ADMIN_SECRET }
+    });
+    if (!res.ok) {
+      // endpoint নাও থাকতে পারে পুরনো server এ — silently fallback
+      document.getElementById('currentMs1').textContent = '990';
+      document.getElementById('currentMs2').textContent = '1150';
+      document.getElementById('msVal1').value = 990;
+      document.getElementById('msVal2').value = 1150;
+      return;
+    }
+    const d = await res.json();
+    const ms1 = d.ms1 || 990;
+    const ms2 = d.ms2 || 1150;
+    document.getElementById('currentMs1').textContent = ms1 + ' ms';
+    document.getElementById('currentMs2').textContent = ms2 + ' ms';
+    document.getElementById('msVal1').value = ms1;
+    document.getElementById('msVal2').value = ms2;
+  } catch {
+    document.getElementById('currentMs1').textContent = '990 ms';
+    document.getElementById('currentMs2').textContent = '1150 ms';
+  }
+}
+
+async function saveMsValues() {
+  const ms1 = parseInt(document.getElementById('msVal1').value);
+  const ms2 = parseInt(document.getElementById('msVal2').value);
+  if (!ms1 || !ms2 || ms1 < 100 || ms2 < 100) {
+    alert('Valid ms value দিন (minimum 100)!'); return;
+  }
+  try {
+    const res = await fetch(`${SERVER_URL}/admin/set-ms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+      body: JSON.stringify({ ms1, ms2 })
+    });
+    if (!res.ok) {
+      log('⚠️ Server এ /admin/set-ms endpoint নেই। Server code update করুন।', 'warn');
+      return;
+    }
+    const d = await res.json();
+    if (d.success) {
+      log(`✅ MS values saved: ${ms1}ms / ${ms2}ms — সব user এ apply হবে`, 'ok');
+      document.getElementById('currentMs1').textContent = ms1 + ' ms';
+      document.getElementById('currentMs2').textContent = ms2 + ' ms';
+    } else {
+      log('❌ MS save failed: ' + (d.error || 'Unknown'), 'err');
+    }
+  } catch (err) {
+    log('❌ ' + err.message, 'err');
+  }
+}
 
 // ==================== BACKUP ====================
 function saveBackup() {
@@ -288,7 +397,7 @@ function login() {
   document.getElementById('loginSection').classList.add('hidden');
   document.getElementById('mainPanel').classList.remove('hidden');
   log('Logged in: '+SERVER_URL,'info');
-  updateBackupUI(); fetchStatus();
+  updateBackupUI(); fetchStatus(); fetchMsValues();
 }
 function logout() {
   sessionStorage.clear();
@@ -311,7 +420,6 @@ async function fetchStatus() {
     const data = await res.json();
     _currentUsers = data.users||{};
     renderUsers(_currentUsers);
-    // auto backup
     if (Object.keys(_currentUsers).length>0) {
       localStorage.setItem(BACKUP_KEY, JSON.stringify({users:_currentUsers, savedAt:new Date().toISOString()}));
       updateBackupUI();
