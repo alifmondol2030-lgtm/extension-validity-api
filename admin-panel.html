@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LuckyLoop Admin Panel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+
+  :root {
+    --bg: #050a0e;
+    --surface: #0a1520;
+    --border: #00ffcc22;
+    --border-bright: #00ffcc66;
+    --accent: #00ffcc;
+    --accent2: #00aaff;
+    --danger: #ff4444;
+    --warn: #ffaa00;
+    --text: #c8e6f0;
+    --muted: #4a7a8a;
+    --success: #00ff88;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,204,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,204,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header-logo {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .header h1 {
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .header-sub {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* Login gate */
+  #loginSection {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .card:hover { border-color: var(--border-bright); }
+
+  .card-title {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Status display */
+  .status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .stat-box {
+    background: #060d14;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Share Tech Mono', monospace;
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .stat-value.green { color: var(--success); }
+  .stat-value.red { color: var(--danger); }
+  .stat-value.yellow { color: var(--warn); }
+  .stat-value.cyan { color: var(--accent); }
+
+  /* Big status badge */
+  .status-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    border: 1px solid;
+    transition: all 0.5s;
+  }
+
+  .status-badge.active {
+    background: rgba(0,255,136,0.08);
+    border-color: rgba(0,255,136,0.3);
+    color: var(--success);
+  }
+
+  .status-badge.expired {
+    background: rgba(255,68,68,0.08);
+    border-color: rgba(255,68,68,0.3);
+    color: var(--danger);
+  }
+
+  .status-badge.loading {
+    background: rgba(0,170,255,0.08);
+    border-color: rgba(0,170,255,0.3);
+    color: var(--accent2);
+  }
+
+  .pulse {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .pulse.green { background: var(--success); box-shadow: 0 0 8px var(--success); }
+  .pulse.red { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+  .pulse.blue { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  /* Inputs */
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .input-group label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  input[type="date"],
+  input[type="password"],
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    background: #060d14;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    color-scheme: dark;
+  }
+
+  input:focus { border-color: var(--accent); }
+
+  /* Buttons */
+  .btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #00ccaa);
+    color: #000;
+    box-shadow: 0 4px 20px rgba(0,255,204,0.2);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 4px 30px rgba(0,255,204,0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #ff4444, #cc2222);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(255,68,68,0.2);
+  }
+
+  .btn-danger:hover {
+    box-shadow: 0 4px 30px rgba(255,68,68,0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--accent2);
+    border: 1px solid rgba(0,170,255,0.3);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(0,170,255,0.08);
+    border-color: var(--accent2);
+  }
+
+  .btn-full { width: 100%; }
+
+  /* Quick presets */
+  .presets {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .preset-btn {
+    padding: 6px 14px;
+    background: #060d14;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .preset-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,255,204,0.05);
+  }
+
+  /* Log */
+  .log-box {
+    background: #030810;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    max-height: 160px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .log-entry {
+    display: flex;
+    gap: 10px;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+  }
+
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  .log-time { color: var(--muted); flex-shrink: 0; }
+  .log-msg.ok { color: var(--success); }
+  .log-msg.err { color: var(--danger); }
+  .log-msg.info { color: var(--accent2); }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+    margin: 20px 0;
+  }
+
+  /* Section hidden */
+  .hidden { display: none !important; }
+
+  /* Scroll */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+  /* Danger zone */
+  .danger-zone {
+    border-color: rgba(255,68,68,0.2);
+  }
+  .danger-zone::before {
+    background: linear-gradient(90deg, transparent, var(--danger), transparent);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-logo">⚡ Admin Control System</div>
+    <h1>LUCKYLOOP</h1>
+    <div class="header-sub">VALIDITY MANAGEMENT PANEL · v1.0</div>
+  </div>
+
+  <!-- LOGIN SECTION -->
+  <div id="loginSection">
+    <div class="card">
+      <div class="card-title">🔐 Admin Authentication</div>
+      <div class="input-group" style="margin-bottom:14px;">
+        <label>Server URL</label>
+        <input type="text" id="serverUrl" value="https://extension-validity-api.onrender.com" placeholder="https://your-app.onrender.com">
+      </div>
+      <div class="input-group" style="margin-bottom:16px;">
+        <label>Admin Secret Key</label>
+        <input type="password" id="adminSecret" placeholder="your admin secret">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="login()">⚡ LOGIN TO ADMIN PANEL</button>
+    </div>
+  </div>
+
+  <!-- MAIN PANEL (hidden until login) -->
+  <div id="mainPanel" class="hidden">
+
+    <!-- Status Card -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title">📡 Current Status</div>
+
+      <div class="status-badge loading" id="statusBadge">
+        <div class="pulse blue"></div>
+        <span id="statusText">Checking...</span>
+      </div>
+
+      <div class="status-grid">
+        <div class="stat-box">
+          <div class="stat-label">Status</div>
+          <div class="stat-value" id="statValid">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Days Left</div>
+          <div class="stat-value cyan" id="statDays">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Expiry Date</div>
+          <div class="stat-value" id="statExpiry" style="font-size:13px;color:#aaa;">—</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button class="btn btn-secondary" onclick="fetchStatus()" style="width:100%;">↻ Refresh Status</button>
+      </div>
+    </div>
+
+    <!-- Set Expiry Card -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title">📅 Set Expiry Date</div>
+
+      <div class="input-row">
+        <div class="input-group">
+          <label>New Expiry Date</label>
+          <input type="date" id="expiryDate">
+        </div>
+        <button class="btn btn-primary" onclick="setExpiry()">✔ Set</button>
+      </div>
+
+      <div class="presets">
+        <span style="font-size:11px;color:var(--muted);font-family:'Share Tech Mono',monospace;align-self:center;">Quick:</span>
+        <button class="preset-btn" onclick="setPreset(7)">+7 days</button>
+        <button class="preset-btn" onclick="setPreset(30)">+30 days</button>
+        <button class="preset-btn" onclick="setPreset(90)">+90 days</button>
+        <button class="preset-btn" onclick="setPreset(180)">+6 months</button>
+        <button class="preset-btn" onclick="setPreset(365)">+1 year</button>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="card danger-zone" style="margin-bottom:16px;">
+      <div class="card-title" style="color:var(--danger);">⛔ Danger Zone</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">
+        Extension বন্ধ করতে expiry clear করো। সব user এর script বন্ধ হয়ে যাবে।
+      </p>
+      <button class="btn btn-danger btn-full" onclick="clearExpiry()">
+        ⛔ DISABLE EXTENSION (Clear Expiry)
+      </button>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="card">
+      <div class="card-title">📋 Activity Log</div>
+      <div class="log-box" id="logBox">
+        <div class="log-entry">
+          <span class="log-time">--:--:--</span>
+          <span class="log-msg info">Admin panel ready.</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;text-align:center;">
+      <button class="btn btn-secondary" onclick="logout()">↩ Logout</button>
+    </div>
+
+  </div><!-- end mainPanel -->
+
+  <div class="footer">LUCKYLOOP ADMIN · SECURED · LOCAL ONLY</div>
+</div>
+
+<script>
+  let SERVER_URL = '';
+  let ADMIN_SECRET = '';
+
+  function login() {
+    const url = document.getElementById('serverUrl').value.trim().replace(/\/$/, '');
+    const secret = document.getElementById('adminSecret').value.trim();
+
+    if (!url || !secret) {
+      alert('Server URL এবং Secret Key দিন!');
+      return;
+    }
+
+    SERVER_URL = url;
+    ADMIN_SECRET = secret;
+
+    // Save to sessionStorage
+    sessionStorage.setItem('ll_url', SERVER_URL);
+    sessionStorage.setItem('ll_secret', ADMIN_SECRET);
+
+    document.getElementById('loginSection').classList.add('hidden');
+    document.getElementById('mainPanel').classList.remove('hidden');
+
+    log('Logged in to: ' + SERVER_URL, 'info');
+    fetchStatus();
+  }
+
+  function logout() {
+    sessionStorage.clear();
+    document.getElementById('loginSection').classList.remove('hidden');
+    document.getElementById('mainPanel').classList.add('hidden');
+    document.getElementById('adminSecret').value = '';
+  }
+
+  // Auto-login if session exists
+  window.addEventListener('DOMContentLoaded', () => {
+    const url = sessionStorage.getItem('ll_url');
+    const secret = sessionStorage.getItem('ll_secret');
+    if (url && secret) {
+      document.getElementById('serverUrl').value = url;
+      document.getElementById('adminSecret').value = secret;
+      login();
+    }
+
+    // Set default date = today
+    const today = new Date();
+    today.setDate(today.getDate() + 30);
+    document.getElementById('expiryDate').value = today.toISOString().split('T')[0];
+  });
+
+  async function fetchStatus() {
+    const badge = document.getElementById('statusBadge');
+    const statusText = document.getElementById('statusText');
+
+    badge.className = 'status-badge loading';
+    badge.innerHTML = '<div class="pulse blue"></div><span>Checking server...</span>';
+
+    try {
+      const res = await fetch(`${SERVER_URL}/admin/status`, {
+        headers: { 'x-admin-secret': ADMIN_SECRET }
+      });
+
+      if (res.status === 401) {
+        log('❌ Wrong admin secret!', 'err');
+        badge.className = 'status-badge expired';
+        badge.innerHTML = '<div class="pulse red"></div><span>AUTH FAILED</span>';
+        return;
+      }
+
+      const data = await res.json();
+
+      const isValid = data.valid;
+      const days = data.daysLeft || 0;
+      const expiry = data.expiry === 'Not set' ? 'Not set' : new Date(data.expiry).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+
+      document.getElementById('statValid').textContent = isValid ? 'ACTIVE' : 'EXPIRED';
+      document.getElementById('statValid').className = 'stat-value ' + (isValid ? 'green' : 'red');
+      document.getElementById('statDays').textContent = data.expiry === 'Not set' ? '—' : days + 'd';
+      document.getElementById('statExpiry').textContent = expiry;
+
+      if (isValid) {
+        badge.className = 'status-badge active';
+        badge.innerHTML = '<div class="pulse green"></div><span>✅ EXTENSION ACTIVE — ' + days + ' DAYS LEFT</span>';
+        log('Status: ACTIVE · ' + days + ' days remaining · Expires ' + expiry, 'ok');
+      } else {
+        badge.className = 'status-badge expired';
+        badge.innerHTML = '<div class="pulse red"></div><span>⛔ EXTENSION DISABLED / EXPIRED</span>';
+        log('Status: EXPIRED · Expiry: ' + expiry, 'err');
+      }
+    } catch (err) {
+      badge.className = 'status-badge expired';
+      badge.innerHTML = '<div class="pulse red"></div><span>SERVER UNREACHABLE</span>';
+      log('Server connect failed: ' + err.message, 'err');
+    }
+  }
+
+  async function setExpiry() {
+    const date = document.getElementById('expiryDate').value;
+    if (!date) { alert('Date select করো!'); return; }
+
+    log('Setting expiry to: ' + date + '...', 'info');
+
+    try {
+      const res = await fetch(`${SERVER_URL}/admin/set-expiry`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-secret': ADMIN_SECRET
+        },
+        body: JSON.stringify({ expiry: date })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        log('✅ Expiry set to: ' + date, 'ok');
+        fetchStatus();
+      } else {
+        log('❌ Failed: ' + (data.error || 'Unknown'), 'err');
+      }
+    } catch (err) {
+      log('❌ Error: ' + err.message, 'err');
+    }
+  }
+
+  function setPreset(days) {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    document.getElementById('expiryDate').value = d.toISOString().split('T')[0];
+    log('Preset selected: +' + days + ' days → ' + d.toISOString().split('T')[0], 'info');
+  }
+
+  async function clearExpiry() {
+    if (!confirm('⚠️ Extension সব user এর জন্য বন্ধ হয়ে যাবে! Confirm?')) return;
+
+    log('Clearing expiry...', 'info');
+
+    try {
+      const res = await fetch(`${SERVER_URL}/admin/clear-expiry`, {
+        method: 'POST',
+        headers: { 'x-admin-secret': ADMIN_SECRET }
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        log('⛔ Extension disabled. Expiry cleared.', 'err');
+        fetchStatus();
+      } else {
+        log('❌ Failed: ' + (data.error || 'Unknown'), 'err');
+      }
+    } catch (err) {
+      log('❌ Error: ' + err.message, 'err');
+    }
+  }
+
+  function log(msg, type = 'info') {
+    const box = document.getElementById('logBox');
+    const now = new Date();
+    const time = now.toTimeString().split(' ')[0];
+
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = `<span class="log-time">${time}</span><span class="log-msg ${type}">${msg}</span>`;
+
+    box.appendChild(entry);
+    box.scrollTop = box.scrollHeight;
+
+    // Max 50 entries
+    while (box.children.length > 50) box.removeChild(box.firstChild);
+  }
+</script>
+</body>
+</html>
