@@ -31,22 +31,12 @@ function checkAdmin(req, res) {
   return true;
 }
 
-// ─── PUBLIC: Extension checks global + user validity ───────
+// ─── PUBLIC: Extension checks user validity ─────────────────
 app.get("/check", (req, res) => {
   const data = loadData();
   const licenseKey = req.headers["x-license-key"] || req.query.key || null;
-
-  // Global expiry check
-  if (!data.expiry) {
-    return res.json({ valid: false, reason: "No expiry set" });
-  }
   const now = new Date();
-  const globalExpiry = new Date(data.expiry);
-  if (now > globalExpiry) {
-    return res.json({ valid: false, reason: "Global validity expired" });
-  }
 
-  // Per-user check (if license key provided)
   if (licenseKey) {
     const user = data.users[licenseKey.toUpperCase()];
     if (!user) {
@@ -55,17 +45,27 @@ app.get("/check", (req, res) => {
     if (!user.active) {
       return res.json({ valid: false, reason: "Your license has been disabled" });
     }
-    const daysLeft = Math.max(0, Math.ceil((globalExpiry - now) / (1000 * 60 * 60 * 24)));
+    if (!user.expiry) {
+      return res.json({ valid: false, reason: "No expiry set for this user" });
+    }
+    const userExpiry = new Date(user.expiry);
+    if (now > userExpiry) {
+      return res.json({ valid: false, reason: "Your license has expired" });
+    }
+    const daysLeft = Math.max(0, Math.ceil((userExpiry - now) / (1000 * 60 * 60 * 24)));
     return res.json({
       valid: true,
-      expiry: data.expiry,
+      expiry: user.expiry,
       daysLeft,
       reason: "Active",
       userName: user.name || licenseKey
     });
   }
 
-  // No license key — global only
+  // No license key — global fallback
+  if (!data.expiry) return res.json({ valid: false, reason: "No expiry set" });
+  const globalExpiry = new Date(data.expiry);
+  if (now > globalExpiry) return res.json({ valid: false, reason: "Global validity expired" });
   const daysLeft = Math.max(0, Math.ceil((globalExpiry - now) / (1000 * 60 * 60 * 24)));
   return res.json({ valid: true, expiry: data.expiry, daysLeft, reason: "Active" });
 });
@@ -75,44 +75,46 @@ app.get("/admin/status", (req, res) => {
   if (!checkAdmin(req, res)) return;
   const data = loadData();
   const now = new Date();
-  const expiry = data.expiry ? new Date(data.expiry) : null;
-  return res.json({
-    expiry: data.expiry || "Not set",
-    valid: expiry ? now <= expiry : false,
-    daysLeft: expiry ? Math.max(0, Math.ceil((expiry - now) / (1000 * 60 * 60 * 24))) : 0,
-    users: data.users
+  const users = data.users;
+  let activeCount = 0, expiredCount = 0, disabledCount = 0;
+  Object.values(users).forEach(u => {
+    if (!u.active) disabledCount++;
+    else if (!u.expiry || new Date(u.expiry) < now) expiredCount++;
+    else activeCount++;
   });
-});
-
-// ─── ADMIN: Set global expiry ───────────────────────────────
-app.post("/admin/set-expiry", (req, res) => {
-  if (!checkAdmin(req, res)) return;
-  const { expiry } = req.body;
-  if (!expiry) return res.status(400).json({ error: "expiry date required" });
-  const date = new Date(expiry);
-  if (isNaN(date.getTime())) return res.status(400).json({ error: "Invalid date" });
-  const data = loadData();
-  data.expiry = date.toISOString();
-  saveData(data);
-  return res.json({ success: true, expiry: data.expiry });
-});
-
-// ─── ADMIN: Clear global expiry ────────────────────────────
-app.post("/admin/clear-expiry", (req, res) => {
-  if (!checkAdmin(req, res)) return;
-  const data = loadData();
-  data.expiry = null;
-  saveData(data);
-  return res.json({ success: true, message: "Expiry cleared." });
+  return res.json({
+    totalUsers: Object.keys(users).length,
+    activeCount,
+    expiredCount,
+    disabledCount,
+    users
+  });
 });
 
 // ─── ADMIN: Add user ────────────────────────────────────────
 app.post("/admin/add-user", (req, res) => {
   if (!checkAdmin(req, res)) return;
-  const { key, name } = req.body;
+  const { key, name, expiry } = req.body;
   if (!key) return res.status(400).json({ error: "key required" });
   const data = loadData();
-  data.users[key.toUpperCase()] = { name: name || key, active: true, addedAt: new Date().toISOString() };
+  data.users[key.toUpperCase()] = {
+    name: name || key,
+    active: true,
+    expiry: expiry ? new Date(expiry).toISOString() : null,
+    addedAt: new Date().toISOString()
+  };
+  saveData(data);
+  return res.json({ success: true, user: data.users[key.toUpperCase()] });
+});
+
+// ─── ADMIN: Set user expiry ─────────────────────────────────
+app.post("/admin/set-user-expiry", (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  const { key, expiry } = req.body;
+  if (!key || !expiry) return res.status(400).json({ error: "key and expiry required" });
+  const data = loadData();
+  if (!data.users[key.toUpperCase()]) return res.status(404).json({ error: "User not found" });
+  data.users[key.toUpperCase()].expiry = new Date(expiry).toISOString();
   saveData(data);
   return res.json({ success: true, user: data.users[key.toUpperCase()] });
 });
@@ -138,6 +140,19 @@ app.post("/admin/delete-user", (req, res) => {
   delete data.users[key.toUpperCase()];
   saveData(data);
   return res.json({ success: true });
+});
+
+// ─── ADMIN: Set global expiry (legacy support) ──────────────
+app.post("/admin/set-expiry", (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  const { expiry } = req.body;
+  if (!expiry) return res.status(400).json({ error: "expiry date required" });
+  const date = new Date(expiry);
+  if (isNaN(date.getTime())) return res.status(400).json({ error: "Invalid date" });
+  const data = loadData();
+  data.expiry = date.toISOString();
+  saveData(data);
+  return res.json({ success: true, expiry: data.expiry });
 });
 
 const PORT = process.env.PORT || 3000;
