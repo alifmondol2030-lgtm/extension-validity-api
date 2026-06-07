@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: extension-validity-api
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: ADMIN_SECRET
+        generateValue: true   # Render নিজে random secret বানাবে
