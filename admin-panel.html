@@ -14,7 +14,7 @@
   *{margin:0;padding:0;box-sizing:border-box;}
   body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden;}
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,204,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,204,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
-  .container{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:32px 20px 60px;}
+  .container{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:32px 20px 60px;}
   .header{text-align:center;margin-bottom:40px;}
   .header-logo{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:4px;text-transform:uppercase;margin-bottom:8px;}
   .header h1{font-size:42px;font-weight:700;letter-spacing:3px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:6px;}
@@ -37,6 +37,8 @@
   .btn-secondary:hover{background:rgba(0,170,255,0.08);border-color:var(--accent2);}
   .btn-warn{background:linear-gradient(135deg,#ffaa00,#cc8800);color:#000;}
   .btn-success{background:linear-gradient(135deg,#00ff88,#00cc66);color:#000;}
+  .btn-ms{background:linear-gradient(135deg,#aa44ff,#7722cc);color:#fff;}
+  .btn-ms:hover{box-shadow:0 4px 20px rgba(170,68,255,0.4);}
   .btn-full{width:100%;}
   .btn-sm{padding:6px 12px;font-size:12px;}
   .add-user-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:flex-end;margin-bottom:12px;}
@@ -52,15 +54,21 @@
   .badge-active{background:rgba(0,255,136,0.15);color:var(--success);border:1px solid rgba(0,255,136,0.3);}
   .badge-disabled{background:rgba(255,68,68,0.15);color:var(--danger);border:1px solid rgba(255,68,68,0.3);}
   .badge-expired{background:rgba(255,170,0,0.15);color:var(--warn);border:1px solid rgba(255,170,0,0.3);}
+  .ms-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-family:'Share Tech Mono',monospace;background:rgba(170,68,255,0.15);color:#bb77ff;border:1px solid rgba(170,68,255,0.3);}
+  .ms-badge.global{background:rgba(74,122,138,0.2);color:var(--muted);border-color:rgba(74,122,138,0.3);}
   .key-text{font-family:'Share Tech Mono',monospace;color:var(--accent);font-size:11px;}
   .name-text{color:var(--text);font-weight:600;}
   .expiry-text{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);}
   .expiry-text.ok{color:var(--success);}.expiry-text.warn{color:var(--warn);}.expiry-text.expired{color:var(--danger);}
   .action-btns{display:flex;gap:5px;flex-wrap:wrap;}
   .empty-state{text-align:center;padding:30px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;}
-  .extend-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0a1520;border:1px solid var(--accent);border-radius:12px;padding:24px;z-index:99999;width:320px;box-shadow:0 0 40px rgba(0,255,204,0.2);}
-  .extend-popup h3{color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:2px;margin-bottom:16px;}
-  .overlay-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99998;}
+  .popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99998;}
+  .popup-box{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0a1520;border:1px solid var(--accent);border-radius:12px;padding:24px;z-index:99999;width:320px;box-shadow:0 0 40px rgba(0,255,204,0.2);}
+  .popup-box.ms-popup{border-color:rgba(170,68,255,0.6);box-shadow:0 0 40px rgba(170,68,255,0.2);}
+  .popup-box h3{font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:2px;margin-bottom:16px;}
+  .popup-box h3.ms-title{color:#bb77ff;}
+  .popup-box h3.extend-title{color:var(--accent);}
+  .hidden{display:none!important;}
   .backup-card{border-color:rgba(0,255,136,0.2);}
   .backup-card::before{background:linear-gradient(90deg,transparent,var(--success),transparent);}
   .backup-info{background:#060d14;border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:'Share Tech Mono',monospace;font-size:12px;margin-bottom:14px;line-height:1.7;}
@@ -69,14 +77,11 @@
   @keyframes fadeIn{to{opacity:1;}}
   .log-time{color:var(--muted);flex-shrink:0;}
   .log-msg.ok{color:var(--success);}.log-msg.err{color:var(--danger);}.log-msg.info{color:var(--accent2);}.log-msg.warn{color:var(--warn);}
-  .hidden{display:none!important;}
   .footer{text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:40px;}
   ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:2px;}
   .stats-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
   .stat-pill{background:#060d14;border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-family:'Share Tech Mono',monospace;font-size:11px;}
   .stat-pill span{color:var(--accent);}
-
-  /* ===== MS CONTROL CARD ===== */
   .ms-card{border-color:rgba(255,170,0,0.25);}
   .ms-card::before{background:linear-gradient(90deg,transparent,var(--warn),transparent);}
   .ms-card .card-title{color:var(--warn);}
@@ -89,6 +94,14 @@
   .ms-status-dot{width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 2s infinite;}
   @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
   .ms-note{font-size:11px;color:var(--muted);font-family:'Share Tech Mono',monospace;line-height:1.6;margin-top:6px;padding:8px 12px;background:#030810;border-radius:6px;border-left:2px solid rgba(255,170,0,0.4);}
+  /* Per-user MS popup styles */
+  .user-ms-display{background:#0d0820;border:1px solid rgba(170,68,255,0.3);border-radius:8px;padding:12px 14px;font-family:'Share Tech Mono',monospace;font-size:12px;display:flex;gap:20px;align-items:center;margin-bottom:14px;}
+  .user-ms-current{display:flex;flex-direction:column;gap:2px;}
+  .user-ms-current-label{font-size:10px;color:var(--muted);letter-spacing:1px;}
+  .user-ms-current-val{color:#bb77ff;font-size:16px;font-weight:bold;}
+  .ms-popup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  .ms-popup-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .ms-popup-presets span{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;align-self:center;}
 </style>
 </head>
 <body>
@@ -96,7 +109,7 @@
   <div class="header">
     <div class="header-logo">⚡ Admin Control System</div>
     <h1>LUCKYLOOP</h1>
-    <div class="header-sub">PER-USER VALIDITY PANEL · v4.0</div>
+    <div class="header-sub">PER-USER VALIDITY + MS PANEL · v4.1</div>
   </div>
 
   <!-- LOGIN -->
@@ -129,14 +142,13 @@
       </div>
     </div>
 
-    <!-- ===== MS CONTROL CARD ===== -->
+    <!-- GLOBAL MS CONTROL -->
     <div class="card ms-card">
-      <div class="card-title">⚡ Click Delay (MS) Control</div>
-
+      <div class="card-title">⚡ Global Click Delay (MS) Control</div>
       <div class="ms-current-display" id="msCurrentDisplay">
         <div style="display:flex;align-items:center;gap:6px;">
           <div class="ms-status-dot"></div>
-          <span style="font-size:11px;color:var(--muted);">Server এ সেভ আছে:</span>
+          <span style="font-size:11px;color:var(--muted);">Global default:</span>
         </div>
         <div class="ms-val">
           <span class="ms-val-label">DELAY 1</span>
@@ -147,7 +159,6 @@
           <span class="ms-val-num" id="currentMs2">—</span>
         </div>
       </div>
-
       <div class="ms-grid">
         <div class="input-group">
           <label>Delay 1 (ms)</label>
@@ -159,7 +170,6 @@
         </div>
         <button class="btn btn-warn" onclick="saveMsValues()" style="padding:11px 20px;">💾 Save</button>
       </div>
-
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
         <span style="font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;align-self:center;">Preset:</span>
         <button class="preset-btn" onclick="setMsPreset(800,950)">800/950</button>
@@ -167,10 +177,9 @@
         <button class="preset-btn" onclick="setMsPreset(1200,1400)">1200/1400</button>
         <button class="preset-btn" onclick="setMsPreset(1500,1800)">1500/1800</button>
       </div>
-
       <div class="ms-note">
-        ℹ️ এখানে Save করলে সব user এর script এ apply হবে। User এর browser reload দিলেই নতুন ms value দিয়ে click করবে।<br>
-        Ctrl+Alt+3 popup userscript থেকে সরানো হয়েছে — এখন শুধু এখান থেকেই ms control হবে।
+        ℹ️ এটা global default। কোনো user এর আলাদা MS না থাকলে এটা apply হবে।<br>
+        প্রতিটি user এ আলাদা MS দিতে user list এ <strong style="color:#bb77ff;">⚡ MS</strong> button চাপুন।
       </div>
     </div>
 
@@ -220,11 +229,11 @@
       <table class="user-table">
         <thead>
           <tr>
-            <th>#</th><th>Name</th><th>License Key</th><th>Expiry / Days Left</th><th>Status</th><th>Actions</th>
+            <th>#</th><th>Name</th><th>License Key</th><th>MS Delay</th><th>Expiry / Days Left</th><th>Status</th><th>Actions</th>
           </tr>
         </thead>
         <tbody id="userTableBody">
-          <tr><td colspan="6"><div class="empty-state">No users yet.</div></td></tr>
+          <tr><td colspan="7"><div class="empty-state">No users yet.</div></td></tr>
         </tbody>
       </table>
     </div>
@@ -242,13 +251,13 @@
     </div>
   </div>
 
-  <div class="footer">LUCKYLOOP ADMIN · PER-USER VALIDITY · v4.0</div>
+  <div class="footer">LUCKYLOOP ADMIN · PER-USER MS + VALIDITY · v4.1</div>
 </div>
 
 <!-- Extend Popup -->
-<div class="overlay-bg hidden" id="overlayBg" onclick="closeExtendPopup()"></div>
-<div class="extend-popup hidden" id="extendPopup">
-  <h3>📅 Validity পরিবর্তন করুন</h3>
+<div class="popup-overlay hidden" id="extendOverlay" onclick="closeExtendPopup()"></div>
+<div class="popup-box hidden" id="extendPopup">
+  <h3 class="extend-title">📅 Validity পরিবর্তন করুন</h3>
   <div style="margin-bottom:8px;font-size:12px;color:var(--muted);font-family:'Share Tech Mono',monospace;" id="extendUserInfo"></div>
   <div class="input-group" style="margin-bottom:12px;">
     <label>New Expiry Date</label>
@@ -267,13 +276,64 @@
   </div>
 </div>
 
+<!-- Per-User MS Popup -->
+<div class="popup-overlay hidden" id="msUserOverlay" onclick="closeMsUserPopup()"></div>
+<div class="popup-box ms-popup hidden" id="msUserPopup">
+  <h3 class="ms-title">⚡ Per-User MS Delay</h3>
+  <div style="margin-bottom:10px;font-size:12px;color:var(--muted);font-family:'Share Tech Mono',monospace;" id="msUserInfo"></div>
+
+  <!-- current ms display -->
+  <div class="user-ms-display" id="msUserCurrentDisplay">
+    <div class="user-ms-current">
+      <span class="user-ms-current-label">CURRENT DELAY 1</span>
+      <span class="user-ms-current-val" id="msUserCurrent1">—</span>
+    </div>
+    <div class="user-ms-current">
+      <span class="user-ms-current-label">CURRENT DELAY 2</span>
+      <span class="user-ms-current-val" id="msUserCurrent2">—</span>
+    </div>
+    <div id="msUserSourceBadge"></div>
+  </div>
+
+  <div class="ms-popup-grid">
+    <div class="input-group">
+      <label>Delay 1 (ms)</label>
+      <input type="number" id="msUserVal1" placeholder="e.g. 990" min="100" max="9999">
+    </div>
+    <div class="input-group">
+      <label>Delay 2 (ms)</label>
+      <input type="number" id="msUserVal2" placeholder="e.g. 1150" min="100" max="9999">
+    </div>
+  </div>
+
+  <div class="ms-popup-presets">
+    <span>Preset:</span>
+    <button class="preset-btn" onclick="setMsUserPreset(800,950)">800/950</button>
+    <button class="preset-btn" onclick="setMsUserPreset(990,1150)">990/1150</button>
+    <button class="preset-btn" onclick="setMsUserPreset(1200,1400)">1200/1400</button>
+    <button class="preset-btn" onclick="setMsUserPreset(1500,1800)">1500/1800</button>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-direction:column;">
+    <button class="btn btn-ms btn-full" onclick="saveMsUserValues()">💾 এই User এ Save করুন</button>
+    <button class="btn btn-secondary btn-full" onclick="clearMsUserValues()" id="msUserClearBtn">🔄 Global এ Reset করুন</button>
+    <button class="btn btn-secondary" onclick="closeMsUserPopup()">Cancel</button>
+  </div>
+
+  <div style="margin-top:10px;font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;line-height:1.6;background:#030810;padding:8px;border-radius:6px;border-left:2px solid rgba(170,68,255,0.4);">
+    ℹ️ এই user reload দিলেই নতুন MS apply হবে।<br>
+    "Global এ Reset" দিলে per-user ms মুছে global default ব্যবহার করবে।
+  </div>
+</div>
+
 <script>
 let SERVER_URL = '', ADMIN_SECRET = '';
 const BACKUP_KEY = 'LuckyLoop_AdminBackup_v4';
 let _currentUsers = {};
 let _extendKey = null;
+let _msUserKey = null;
 
-// ==================== MS VALUES ====================
+// ==================== MS VALUES (GLOBAL) ====================
 function setMsPreset(v1, v2) {
   document.getElementById('msVal1').value = v1;
   document.getElementById('msVal2').value = v2;
@@ -285,9 +345,8 @@ async function fetchMsValues() {
       headers: { 'x-admin-secret': ADMIN_SECRET }
     });
     if (!res.ok) {
-      // endpoint নাও থাকতে পারে পুরনো server এ — silently fallback
-      document.getElementById('currentMs1').textContent = '990';
-      document.getElementById('currentMs2').textContent = '1150';
+      document.getElementById('currentMs1').textContent = '990 ms';
+      document.getElementById('currentMs2').textContent = '1150 ms';
       document.getElementById('msVal1').value = 990;
       document.getElementById('msVal2').value = 1150;
       return;
@@ -317,21 +376,97 @@ async function saveMsValues() {
       headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
       body: JSON.stringify({ ms1, ms2 })
     });
-    if (!res.ok) {
-      log('⚠️ Server এ /admin/set-ms endpoint নেই। Server code update করুন।', 'warn');
-      return;
-    }
+    if (!res.ok) { log('⚠️ /admin/set-ms endpoint নেই। Server update করুন।', 'warn'); return; }
     const d = await res.json();
     if (d.success) {
-      log(`✅ MS values saved: ${ms1}ms / ${ms2}ms — সব user এ apply হবে`, 'ok');
+      log(`✅ Global MS saved: ${ms1}ms / ${ms2}ms`, 'ok');
       document.getElementById('currentMs1').textContent = ms1 + ' ms';
       document.getElementById('currentMs2').textContent = ms2 + ' ms';
-    } else {
-      log('❌ MS save failed: ' + (d.error || 'Unknown'), 'err');
-    }
-  } catch (err) {
-    log('❌ ' + err.message, 'err');
+      fetchStatus();
+    } else log('❌ MS save failed: ' + (d.error || 'Unknown'), 'err');
+  } catch (err) { log('❌ ' + err.message, 'err'); }
+}
+
+// ==================== PER-USER MS POPUP ====================
+function openMsUserPopup(key) {
+  _msUserKey = key;
+  const u = _currentUsers[key];
+
+  document.getElementById('msUserInfo').textContent = `👤 ${u.name || key}  ·  ${key}`;
+
+  // current values
+  const hasCustom = u.ms1 && u.ms2;
+  const ms1 = u.ms1 || '—';
+  const ms2 = u.ms2 || '—';
+  document.getElementById('msUserCurrent1').textContent = hasCustom ? ms1 + ' ms' : 'Global';
+  document.getElementById('msUserCurrent2').textContent = hasCustom ? ms2 + ' ms' : 'Global';
+
+  const badge = document.getElementById('msUserSourceBadge');
+  if (hasCustom) {
+    badge.innerHTML = `<span class="ms-badge">Custom</span>`;
+    document.getElementById('msUserClearBtn').classList.remove('hidden');
+    document.getElementById('msUserVal1').value = u.ms1;
+    document.getElementById('msUserVal2').value = u.ms2;
+  } else {
+    badge.innerHTML = `<span class="ms-badge global">Global default</span>`;
+    document.getElementById('msUserClearBtn').classList.add('hidden');
+    document.getElementById('msUserVal1').value = '';
+    document.getElementById('msUserVal2').value = '';
   }
+
+  document.getElementById('msUserOverlay').classList.remove('hidden');
+  document.getElementById('msUserPopup').classList.remove('hidden');
+}
+
+function closeMsUserPopup() {
+  document.getElementById('msUserOverlay').classList.add('hidden');
+  document.getElementById('msUserPopup').classList.add('hidden');
+  _msUserKey = null;
+}
+
+function setMsUserPreset(v1, v2) {
+  document.getElementById('msUserVal1').value = v1;
+  document.getElementById('msUserVal2').value = v2;
+}
+
+async function saveMsUserValues() {
+  if (!_msUserKey) return;
+  const ms1 = parseInt(document.getElementById('msUserVal1').value);
+  const ms2 = parseInt(document.getElementById('msUserVal2').value);
+  if (!ms1 || !ms2 || ms1 < 100 || ms2 < 100) {
+    alert('Valid ms value দিন (minimum 100)!'); return;
+  }
+  try {
+    const res = await fetch(`${SERVER_URL}/admin/set-user-ms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+      body: JSON.stringify({ key: _msUserKey, ms1, ms2 })
+    });
+    const d = await res.json();
+    if (d.success) {
+      log(`✅ Per-user MS set: ${_msUserKey} → ${ms1}ms / ${ms2}ms`, 'ok');
+      closeMsUserPopup();
+      fetchStatus();
+    } else log('❌ ' + (d.error || 'Failed'), 'err');
+  } catch (err) { log('❌ ' + err.message, 'err'); }
+}
+
+async function clearMsUserValues() {
+  if (!_msUserKey) return;
+  if (!confirm(`${_msUserKey} এর custom MS মুছে global এ reset করবেন?`)) return;
+  try {
+    const res = await fetch(`${SERVER_URL}/admin/set-user-ms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+      body: JSON.stringify({ key: _msUserKey, ms1: null, ms2: null })
+    });
+    const d = await res.json();
+    if (d.success) {
+      log(`🔄 Per-user MS cleared: ${_msUserKey} (using global now)`, 'info');
+      closeMsUserPopup();
+      fetchStatus();
+    } else log('❌ ' + (d.error || 'Failed'), 'err');
+  } catch (err) { log('❌ ' + err.message, 'err'); }
 }
 
 // ==================== BACKUP ====================
@@ -349,65 +484,72 @@ function updateBackupUI() {
   const b = loadBackup();
   const el = document.getElementById('backupInfo');
   const rb = document.getElementById('restoreBtn');
-  if (!b) { el.innerHTML = '<span style="color:var(--muted)">No backup found</span>'; rb.style.display='none'; return; }
+  if (!b) { el.innerHTML = '<span style="color:var(--muted)">No backup found</span>'; rb.style.display = 'none'; return; }
   const d = new Date(b.savedAt);
-  const cnt = Object.keys(b.users||{}).length;
-  el.innerHTML = `✅ <strong style="color:var(--success)">${cnt} টি license key backup আছে</strong><br><small style="color:var(--muted)">Last backup: ${d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} , ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</small>`;
+  const cnt = Object.keys(b.users || {}).length;
+  el.innerHTML = `✅ <strong style="color:var(--success)">${cnt} টি license key backup আছে</strong><br><small style="color:var(--muted)">Last backup: ${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}, ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</small>`;
   rb.style.display = '';
 }
 async function restoreFromBackup() {
   const b = loadBackup();
   if (!b) { alert('কোনো backup নেই!'); return; }
-  const cnt = Object.keys(b.users||{}).length;
+  const cnt = Object.keys(b.users || {}).length;
   if (!confirm(`Server এ restore করবেন?\n• ${cnt} জন user\n\nServer এর বর্তমান data replace হবে।`)) return;
   log('🔄 Restoring...', 'info');
-  let ok=0, fail=0;
-  for (const [key, user] of Object.entries(b.users||{})) {
+  let ok = 0, fail = 0;
+  for (const [key, user] of Object.entries(b.users || {})) {
     try {
       const expiryStr = user.expiry ? user.expiry.split('T')[0] : null;
       const res = await fetch(`${SERVER_URL}/admin/add-user`, {
-        method:'POST', headers:{'Content-Type':'application/json','x-admin-secret':ADMIN_SECRET},
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
         body: JSON.stringify({ key, name: user.name, expiry: expiryStr })
       });
       const d = await res.json();
       if (d.success && !user.active) {
         await fetch(`${SERVER_URL}/admin/toggle-user`, {
-          method:'POST', headers:{'Content-Type':'application/json','x-admin-secret':ADMIN_SECRET},
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
           body: JSON.stringify({ key, active: false })
+        });
+      }
+      // per-user ms restore
+      if (d.success && user.ms1 && user.ms2) {
+        await fetch(`${SERVER_URL}/admin/set-user-ms`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+          body: JSON.stringify({ key, ms1: user.ms1, ms2: user.ms2 })
         });
       }
       ok++;
     } catch { fail++; }
   }
-  log(`✅ Restore done: ${ok} users${fail>0?', '+fail+' failed':''}`, 'ok');
+  log(`✅ Restore done: ${ok} users${fail > 0 ? ', ' + fail + ' failed' : ''}`, 'ok');
   fetchStatus();
 }
 function clearBackup() {
   if (!confirm('Local backup মুছবেন?')) return;
-  localStorage.removeItem(BACKUP_KEY); updateBackupUI(); log('🗑 Backup cleared','warn');
+  localStorage.removeItem(BACKUP_KEY); updateBackupUI(); log('🗑 Backup cleared', 'warn');
 }
 
 // ==================== AUTH ====================
 function login() {
-  const url = document.getElementById('serverUrl').value.trim().replace(/\/$/,'');
+  const url = document.getElementById('serverUrl').value.trim().replace(/\/$/, '');
   const secret = document.getElementById('adminSecret').value.trim();
-  if (!url||!secret) { alert('URL এবং Secret দিন!'); return; }
-  SERVER_URL=url; ADMIN_SECRET=secret;
-  sessionStorage.setItem('ll_url',SERVER_URL); sessionStorage.setItem('ll_secret',ADMIN_SECRET);
+  if (!url || !secret) { alert('URL এবং Secret দিন!'); return; }
+  SERVER_URL = url; ADMIN_SECRET = secret;
+  sessionStorage.setItem('ll_url', SERVER_URL); sessionStorage.setItem('ll_secret', ADMIN_SECRET);
   document.getElementById('loginSection').classList.add('hidden');
   document.getElementById('mainPanel').classList.remove('hidden');
-  log('Logged in: '+SERVER_URL,'info');
+  log('Logged in: ' + SERVER_URL, 'info');
   updateBackupUI(); fetchStatus(); fetchMsValues();
 }
 function logout() {
   sessionStorage.clear();
   document.getElementById('loginSection').classList.remove('hidden');
   document.getElementById('mainPanel').classList.add('hidden');
-  document.getElementById('adminSecret').value='';
+  document.getElementById('adminSecret').value = '';
 }
 window.addEventListener('DOMContentLoaded', () => {
-  const url=sessionStorage.getItem('ll_url'), secret=sessionStorage.getItem('ll_secret');
-  if (url&&secret) { document.getElementById('serverUrl').value=url; document.getElementById('adminSecret').value=secret; login(); }
+  const url = sessionStorage.getItem('ll_url'), secret = sessionStorage.getItem('ll_secret');
+  if (url && secret) { document.getElementById('serverUrl').value = url; document.getElementById('adminSecret').value = secret; login(); }
   setNewExpiry(30);
   updateBackupUI();
 });
@@ -415,20 +557,20 @@ window.addEventListener('DOMContentLoaded', () => {
 // ==================== FETCH ====================
 async function fetchStatus() {
   try {
-    const res = await fetch(`${SERVER_URL}/admin/status`, { headers:{'x-admin-secret':ADMIN_SECRET} });
-    if (res.status===401) { log('❌ Wrong secret!','err'); return; }
+    const res = await fetch(`${SERVER_URL}/admin/status`, { headers: { 'x-admin-secret': ADMIN_SECRET } });
+    if (res.status === 401) { log('❌ Wrong secret!', 'err'); return; }
     const data = await res.json();
-    _currentUsers = data.users||{};
+    _currentUsers = data.users || {};
     renderUsers(_currentUsers);
-    if (Object.keys(_currentUsers).length>0) {
-      localStorage.setItem(BACKUP_KEY, JSON.stringify({users:_currentUsers, savedAt:new Date().toISOString()}));
+    if (Object.keys(_currentUsers).length > 0) {
+      localStorage.setItem(BACKUP_KEY, JSON.stringify({ users: _currentUsers, savedAt: new Date().toISOString() }));
       updateBackupUI();
     }
-    log(`Loaded: ${data.totalUsers} users, ${data.activeCount} active`,'ok');
-  } catch(err) {
-    log('Server connect failed: '+err.message,'err');
-    const b=loadBackup();
-    if (b) { log('💾 Backup আছে! Restore করুন।','warn'); document.getElementById('restoreBtn').style.display=''; }
+    log(`Loaded: ${data.totalUsers} users, ${data.activeCount} active`, 'ok');
+  } catch (err) {
+    log('Server connect failed: ' + err.message, 'err');
+    const b = loadBackup();
+    if (b) { log('💾 Backup আছে! Restore করুন।', 'warn'); document.getElementById('restoreBtn').style.display = ''; }
   }
 }
 
@@ -436,53 +578,64 @@ function renderUsers(users) {
   const tbody = document.getElementById('userTableBody');
   const keys = Object.keys(users);
   const now = new Date();
-  let active=0, expired=0, disabled=0;
+  let active = 0, expired = 0, disabled = 0;
   keys.forEach(k => {
-    const u=users[k];
+    const u = users[k];
     if (!u.active) disabled++;
-    else if (!u.expiry || new Date(u.expiry)<now) expired++;
+    else if (!u.expiry || new Date(u.expiry) < now) expired++;
     else active++;
   });
-  document.getElementById('cTotal').textContent=keys.length;
-  document.getElementById('cActive').textContent=active;
-  document.getElementById('cExpired').textContent=expired;
-  document.getElementById('cDisabled').textContent=disabled;
+  document.getElementById('cTotal').textContent = keys.length;
+  document.getElementById('cActive').textContent = active;
+  document.getElementById('cExpired').textContent = expired;
+  document.getElementById('cDisabled').textContent = disabled;
 
-  if (keys.length===0) { tbody.innerHTML='<tr><td colspan="6"><div class="empty-state">No users yet. Add above.</div></td></tr>'; return; }
+  if (keys.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">No users yet. Add above.</div></td></tr>';
+    return;
+  }
 
-  tbody.innerHTML = keys.map((key,i) => {
-    const u=users[key];
+  tbody.innerHTML = keys.map((key, i) => {
+    const u = users[key];
     const expDate = u.expiry ? new Date(u.expiry) : null;
-    const daysLeft = expDate ? Math.ceil((expDate-now)/(1000*60*60*24)) : null;
+    const daysLeft = expDate ? Math.ceil((expDate - now) / (1000 * 60 * 60 * 24)) : null;
     let expiryHtml, statusBadge;
 
     if (!u.active) {
-      expiryHtml = expDate ? `<span class="expiry-text">${expDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</span>` : '<span class="expiry-text">Not set</span>';
+      expiryHtml = expDate ? `<span class="expiry-text">${expDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>` : '<span class="expiry-text">Not set</span>';
       statusBadge = `<span class="badge badge-disabled">⛔ DISABLED</span>`;
     } else if (!expDate) {
       expiryHtml = `<span class="expiry-text warn">Not set</span>`;
       statusBadge = `<span class="badge badge-expired">⚠ NO EXPIRY</span>`;
-    } else if (daysLeft<=0) {
-      expiryHtml = `<span class="expiry-text expired">${expDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})} <br>Expired!</span>`;
+    } else if (daysLeft <= 0) {
+      expiryHtml = `<span class="expiry-text expired">${expDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}<br>Expired!</span>`;
       statusBadge = `<span class="badge badge-expired">⏰ EXPIRED</span>`;
     } else {
-      const cls = daysLeft<=7?'warn':'ok';
-      expiryHtml = `<span class="expiry-text ${cls}">${expDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}<br>${daysLeft}d left</span>`;
+      const cls = daysLeft <= 7 ? 'warn' : 'ok';
+      expiryHtml = `<span class="expiry-text ${cls}">${expDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}<br>${daysLeft}d left</span>`;
       statusBadge = `<span class="badge badge-active">✅ ACTIVE</span>`;
     }
+
+    // MS column
+    const hasCustomMs = u.ms1 && u.ms2;
+    const msBadge = hasCustomMs
+      ? `<span class="ms-badge">${u.ms1}/${u.ms2}ms</span>`
+      : `<span class="ms-badge global">global</span>`;
 
     const toggleBtn = u.active
       ? `<button class="btn btn-warn btn-sm" onclick="toggleUser('${key}',false)">Disable</button>`
       : `<button class="btn btn-primary btn-sm" onclick="toggleUser('${key}',true)">Enable</button>`;
 
     return `<tr>
-      <td style="color:var(--muted);font-family:'Share Tech Mono',monospace;">${i+1}</td>
-      <td><span class="name-text">${u.name||'—'}</span></td>
+      <td style="color:var(--muted);font-family:'Share Tech Mono',monospace;">${i + 1}</td>
+      <td><span class="name-text">${u.name || '—'}</span></td>
       <td><span class="key-text">${key}</span></td>
+      <td>${msBadge}</td>
       <td>${expiryHtml}</td>
       <td>${statusBadge}</td>
       <td><div class="action-btns">
-        <button class="btn btn-success btn-sm" onclick="openExtendPopup('${key}')">📅 Validity</button>
+        <button class="btn btn-ms btn-sm" onclick="openMsUserPopup('${key}')">⚡ MS</button>
+        <button class="btn btn-success btn-sm" onclick="openExtendPopup('${key}')">📅</button>
         ${toggleBtn}
         <button class="btn btn-danger btn-sm" onclick="deleteUser('${key}')">✕</button>
       </div></td>
@@ -492,105 +645,105 @@ function renderUsers(users) {
 
 // ==================== ADD USER ====================
 async function addUser() {
-  const name=document.getElementById('newUserName').value.trim();
-  const key=document.getElementById('newUserKey').value.trim().toUpperCase();
-  const expiry=document.getElementById('newUserExpiry').value;
+  const name = document.getElementById('newUserName').value.trim();
+  const key = document.getElementById('newUserKey').value.trim().toUpperCase();
+  const expiry = document.getElementById('newUserExpiry').value;
   if (!key) { alert('License Key দিন!'); return; }
   if (!expiry) { alert('Expiry Date দিন!'); return; }
   try {
-    const res=await fetch(`${SERVER_URL}/admin/add-user`,{
-      method:'POST', headers:{'Content-Type':'application/json','x-admin-secret':ADMIN_SECRET},
-      body:JSON.stringify({key, name:name||key, expiry})
+    const res = await fetch(`${SERVER_URL}/admin/add-user`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+      body: JSON.stringify({ key, name: name || key, expiry })
     });
-    const d=await res.json();
+    const d = await res.json();
     if (d.success) {
-      log(`✅ Added: ${name||key} · Key: ${key} · Expiry: ${expiry}`,'ok');
-      document.getElementById('newUserName').value='';
-      document.getElementById('newUserKey').value='';
+      log(`✅ Added: ${name || key} · Key: ${key} · Expiry: ${expiry}`, 'ok');
+      document.getElementById('newUserName').value = '';
+      document.getElementById('newUserKey').value = '';
       setNewExpiry(30);
       fetchStatus();
-    } else log('❌ Failed: '+(d.error||'Unknown'),'err');
-  } catch(err) { log('❌ '+err.message,'err'); }
+    } else log('❌ Failed: ' + (d.error || 'Unknown'), 'err');
+  } catch (err) { log('❌ ' + err.message, 'err'); }
 }
 
 function generateKey() {
-  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const r=n=>Array.from({length:n},()=>c[Math.floor(Math.random()*c.length)]).join('');
-  document.getElementById('newUserKey').value=`LUCKY-${r(4)}-${r(4)}-${r(4)}`;
+  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const r = n => Array.from({ length: n }, () => c[Math.floor(Math.random() * c.length)]).join('');
+  document.getElementById('newUserKey').value = `LUCKY-${r(4)}-${r(4)}-${r(4)}`;
 }
 function setNewExpiry(days) {
-  const d=new Date(); d.setDate(d.getDate()+days);
-  document.getElementById('newUserExpiry').value=d.toISOString().split('T')[0];
+  const d = new Date(); d.setDate(d.getDate() + days);
+  document.getElementById('newUserExpiry').value = d.toISOString().split('T')[0];
 }
 
 // ==================== EXTEND POPUP ====================
 function openExtendPopup(key) {
-  _extendKey=key;
-  const u=_currentUsers[key];
-  document.getElementById('extendUserInfo').textContent=`👤 ${u.name||key}  ·  ${key}`;
-  const exp=u.expiry?u.expiry.split('T')[0]:'';
-  document.getElementById('extendDate').value=exp;
-  document.getElementById('overlayBg').classList.remove('hidden');
+  _extendKey = key;
+  const u = _currentUsers[key];
+  document.getElementById('extendUserInfo').textContent = `👤 ${u.name || key}  ·  ${key}`;
+  const exp = u.expiry ? u.expiry.split('T')[0] : '';
+  document.getElementById('extendDate').value = exp;
+  document.getElementById('extendOverlay').classList.remove('hidden');
   document.getElementById('extendPopup').classList.remove('hidden');
 }
 function closeExtendPopup() {
-  document.getElementById('overlayBg').classList.add('hidden');
+  document.getElementById('extendOverlay').classList.add('hidden');
   document.getElementById('extendPopup').classList.add('hidden');
-  _extendKey=null;
+  _extendKey = null;
 }
 function setExtendPreset(days) {
-  const d=new Date(); d.setDate(d.getDate()+days);
-  document.getElementById('extendDate').value=d.toISOString().split('T')[0];
+  const d = new Date(); d.setDate(d.getDate() + days);
+  document.getElementById('extendDate').value = d.toISOString().split('T')[0];
 }
 async function applyExtend() {
   if (!_extendKey) return;
-  const expiry=document.getElementById('extendDate').value;
+  const expiry = document.getElementById('extendDate').value;
   if (!expiry) { alert('Date দিন!'); return; }
   try {
-    const res=await fetch(`${SERVER_URL}/admin/set-user-expiry`,{
-      method:'POST', headers:{'Content-Type':'application/json','x-admin-secret':ADMIN_SECRET},
-      body:JSON.stringify({key:_extendKey, expiry})
+    const res = await fetch(`${SERVER_URL}/admin/set-user-expiry`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+      body: JSON.stringify({ key: _extendKey, expiry })
     });
-    const d=await res.json();
+    const d = await res.json();
     if (d.success) {
-      log(`✅ Validity updated: ${_extendKey} → ${expiry}`,'ok');
+      log(`✅ Validity updated: ${_extendKey} → ${expiry}`, 'ok');
       closeExtendPopup(); fetchStatus();
-    } else log('❌ '+d.error,'err');
-  } catch(err) { log('❌ '+err.message,'err'); }
+    } else log('❌ ' + d.error, 'err');
+  } catch (err) { log('❌ ' + err.message, 'err'); }
 }
 
 // ==================== TOGGLE / DELETE ====================
-async function toggleUser(key,active) {
+async function toggleUser(key, active) {
   try {
-    const res=await fetch(`${SERVER_URL}/admin/toggle-user`,{
-      method:'POST', headers:{'Content-Type':'application/json','x-admin-secret':ADMIN_SECRET},
-      body:JSON.stringify({key,active})
+    const res = await fetch(`${SERVER_URL}/admin/toggle-user`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+      body: JSON.stringify({ key, active })
     });
-    const d=await res.json();
-    if (d.success) { log(`${active?'✅ Enabled':'⛔ Disabled'}: ${key}`, active?'ok':'err'); fetchStatus(); }
-  } catch(err) { log('❌ '+err.message,'err'); }
+    const d = await res.json();
+    if (d.success) { log(`${active ? '✅ Enabled' : '⛔ Disabled'}: ${key}`, active ? 'ok' : 'err'); fetchStatus(); }
+  } catch (err) { log('❌ ' + err.message, 'err'); }
 }
 async function deleteUser(key) {
   if (!confirm(`"${key}" delete করবেন?`)) return;
   try {
-    const res=await fetch(`${SERVER_URL}/admin/delete-user`,{
-      method:'POST', headers:{'Content-Type':'application/json','x-admin-secret':ADMIN_SECRET},
-      body:JSON.stringify({key})
+    const res = await fetch(`${SERVER_URL}/admin/delete-user`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+      body: JSON.stringify({ key })
     });
-    const d=await res.json();
-    if (d.success) { log(`🗑 Deleted: ${key}`,'info'); fetchStatus(); }
-  } catch(err) { log('❌ '+err.message,'err'); }
+    const d = await res.json();
+    if (d.success) { log(`🗑 Deleted: ${key}`, 'info'); fetchStatus(); }
+  } catch (err) { log('❌ ' + err.message, 'err'); }
 }
 
 // ==================== LOG ====================
-function log(msg,type='info') {
-  const box=document.getElementById('logBox');
-  const time=new Date().toTimeString().split(' ')[0];
-  const entry=document.createElement('div');
-  entry.className='log-entry';
-  entry.innerHTML=`<span class="log-time">${time}</span><span class="log-msg ${type}">${msg}</span>`;
-  box.appendChild(entry); box.scrollTop=box.scrollHeight;
-  while(box.children.length>50) box.removeChild(box.firstChild);
+function log(msg, type = 'info') {
+  const box = document.getElementById('logBox');
+  const time = new Date().toTimeString().split(' ')[0];
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `<span class="log-time">${time}</span><span class="log-msg ${type}">${msg}</span>`;
+  box.appendChild(entry); box.scrollTop = box.scrollHeight;
+  while (box.children.length > 50) box.removeChild(box.firstChild);
 }
 </script>
 </body>
