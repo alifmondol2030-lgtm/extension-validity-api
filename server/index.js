@@ -28,7 +28,7 @@ function checkAdmin(req, res) {
 }
 
 // ==================== MS HELPERS ====================
-async function getMsValues() {
+async function getGlobalMsValues() {
   const doc = await getSettings().findOne({ _id: "ms_values" });
   return { ms1: doc?.ms1 || 990, ms2: doc?.ms2 || 1150 };
 }
@@ -48,8 +48,16 @@ app.get("/check", async (req, res) => {
   if (now > expiry) return res.json({ valid: false, reason: "Your license has expired" });
   const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
 
-  // ms values ও include করো — userscript এখান থেকে পাবে
-  const ms = await getMsValues();
+  // per-user ms আছে কিনা দেখো, না থাকলে global নাও
+  let ms1, ms2;
+  if (user.ms1 && user.ms2) {
+    ms1 = user.ms1;
+    ms2 = user.ms2;
+  } else {
+    const global = await getGlobalMsValues();
+    ms1 = global.ms1;
+    ms2 = global.ms2;
+  }
 
   return res.json({
     valid: true,
@@ -57,14 +65,21 @@ app.get("/check", async (req, res) => {
     daysLeft,
     reason: "Active",
     userName: user.name || licenseKey,
-    ms1: ms.ms1,
-    ms2: ms.ms2
+    ms1,
+    ms2
   });
 });
 
-// PUBLIC: Get MS values (userscript এ /get-ms call করে)
+// PUBLIC: Get MS values (userscript /get-ms call করে)
 app.get("/get-ms", async (req, res) => {
-  const ms = await getMsValues();
+  const licenseKey = (req.headers["x-license-key"] || req.query.key || "").toUpperCase();
+  if (licenseKey) {
+    const user = await getUsers().findOne({ key: licenseKey });
+    if (user && user.ms1 && user.ms2) {
+      return res.json({ ms1: user.ms1, ms2: user.ms2 });
+    }
+  }
+  const ms = await getGlobalMsValues();
   res.json({ ms1: ms.ms1, ms2: ms.ms2 });
 });
 
@@ -78,7 +93,14 @@ app.get("/admin/status", async (req, res) => {
   let activeCount = 0, expiredCount = 0, disabledCount = 0;
   const usersObj = {};
   users.forEach(u => {
-    usersObj[u.key] = { name: u.name, active: u.active, expiry: u.expiry, addedAt: u.addedAt };
+    usersObj[u.key] = {
+      name: u.name,
+      active: u.active,
+      expiry: u.expiry,
+      addedAt: u.addedAt,
+      ms1: u.ms1 || null,
+      ms2: u.ms2 || null
+    };
     if (!u.active) disabledCount++;
     else if (!u.expiry || new Date(u.expiry) < now) expiredCount++;
     else activeCount++;
@@ -131,14 +153,14 @@ app.post("/admin/delete-user", async (req, res) => {
   res.json({ success: true });
 });
 
-// ADMIN: Get MS values
+// ADMIN: Get global MS values
 app.get("/admin/get-ms", async (req, res) => {
   if (!checkAdmin(req, res)) return;
-  const ms = await getMsValues();
+  const ms = await getGlobalMsValues();
   res.json({ ms1: ms.ms1, ms2: ms.ms2 });
 });
 
-// ADMIN: Set MS values
+// ADMIN: Set global MS values
 app.post("/admin/set-ms", async (req, res) => {
   if (!checkAdmin(req, res)) return;
   const { ms1, ms2 } = req.body;
@@ -148,7 +170,33 @@ app.post("/admin/set-ms", async (req, res) => {
     { $set: { _id: "ms_values", ms1: parseInt(ms1), ms2: parseInt(ms2), updatedAt: new Date().toISOString() } },
     { upsert: true }
   );
-  console.log(`[Admin] MS values updated: ${ms1}ms / ${ms2}ms`);
+  console.log(`[Admin] Global MS values updated: ${ms1}ms / ${ms2}ms`);
+  res.json({ success: true, ms1: parseInt(ms1), ms2: parseInt(ms2) });
+});
+
+// ADMIN: Set per-user MS values
+app.post("/admin/set-user-ms", async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  const { key, ms1, ms2 } = req.body;
+  if (!key) return res.status(400).json({ error: "key required" });
+  const k = key.toUpperCase();
+
+  if (ms1 === null && ms2 === null) {
+    // per-user ms মুছে দাও — global এ ফিরে যাবে
+    await getUsers().updateOne({ key: k }, { $unset: { ms1: "", ms2: "" } });
+    console.log(`[Admin] Per-user MS cleared for: ${k} (will use global)`);
+    return res.json({ success: true, cleared: true });
+  }
+
+  if (!ms1 || !ms2 || parseInt(ms1) < 100 || parseInt(ms2) < 100) {
+    return res.status(400).json({ error: "Valid ms1 and ms2 required (min 100)" });
+  }
+
+  await getUsers().updateOne(
+    { key: k },
+    { $set: { ms1: parseInt(ms1), ms2: parseInt(ms2) } }
+  );
+  console.log(`[Admin] Per-user MS set for ${k}: ${ms1}ms / ${ms2}ms`);
   res.json({ success: true, ms1: parseInt(ms1), ms2: parseInt(ms2) });
 });
 
