@@ -3,7 +3,7 @@ const cors = require("cors");
 const { MongoClient } = require("mongodb");
 const app = express();
 app.use(cors({ origin: '*' }));
-app.use(express.json());
+app.use(express.json({ limit: '2mb' })); // script বড় হতে পারে
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET || "change-this-secret";
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -48,7 +48,6 @@ app.get("/check", async (req, res) => {
   if (now > expiry) return res.json({ valid: false, reason: "Your license has expired" });
   const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
 
-  // per-user ms আছে কিনা দেখো, না থাকলে global নাও
   let ms1, ms2;
   if (user.ms1 && user.ms2) {
     ms1 = user.ms1;
@@ -70,7 +69,7 @@ app.get("/check", async (req, res) => {
   });
 });
 
-// PUBLIC: Get MS values (userscript /get-ms call করে)
+// PUBLIC: Get MS values
 app.get("/get-ms", async (req, res) => {
   const licenseKey = (req.headers["x-license-key"] || req.query.key || "").toUpperCase();
   if (licenseKey) {
@@ -81,6 +80,30 @@ app.get("/get-ms", async (req, res) => {
   }
   const ms = await getGlobalMsValues();
   res.json({ ms1: ms.ms1, ms2: ms.ms2 });
+});
+
+// ✅ PUBLIC: Get Script (luckyloop.js এটা call করবে)
+// License key দিয়ে verify করে script দেবে
+app.get("/get-script", async (req, res) => {
+  const licenseKey = (req.headers["x-license-key"] || req.query.key || "").toUpperCase();
+  if (!licenseKey) return res.status(403).json({ error: "No license key" });
+
+  // License check করো
+  const user = await getUsers().findOne({ key: licenseKey });
+  if (!user || !user.active) return res.status(403).json({ error: "Invalid or disabled license" });
+  if (!user.expiry || new Date() > new Date(user.expiry)) {
+    return res.status(403).json({ error: "License expired" });
+  }
+
+  // Script নাও
+  const scriptDoc = await getSettings().findOne({ _id: "main_script" });
+  if (!scriptDoc || !scriptDoc.content) {
+    return res.status(404).json({ error: "No script uploaded yet" });
+  }
+
+  // Script টা plain text হিসেবে পাঠাও
+  res.setHeader('Content-Type', 'application/javascript');
+  res.send(scriptDoc.content);
 });
 
 // ==================== ADMIN ENDPOINTS ====================
@@ -182,7 +205,6 @@ app.post("/admin/set-user-ms", async (req, res) => {
   const k = key.toUpperCase();
 
   if (ms1 === null && ms2 === null) {
-    // per-user ms মুছে দাও — global এ ফিরে যাবে
     await getUsers().updateOne({ key: k }, { $unset: { ms1: "", ms2: "" } });
     console.log(`[Admin] Per-user MS cleared for: ${k} (will use global)`);
     return res.json({ success: true, cleared: true });
@@ -198,6 +220,43 @@ app.post("/admin/set-user-ms", async (req, res) => {
   );
   console.log(`[Admin] Per-user MS set for ${k}: ${ms1}ms / ${ms2}ms`);
   res.json({ success: true, ms1: parseInt(ms1), ms2: parseInt(ms2) });
+});
+
+// ✅ ADMIN: Script আপলোড করুন
+app.post("/admin/set-script", async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  const { content } = req.body;
+  if (!content || content.trim().length === 0) {
+    return res.status(400).json({ error: "Script content required" });
+  }
+  await getSettings().updateOne(
+    { _id: "main_script" },
+    { $set: {
+      _id: "main_script",
+      content: content,
+      updatedAt: new Date().toISOString(),
+      size: content.length
+    }},
+    { upsert: true }
+  );
+  console.log(`[Admin] Script updated: ${content.length} chars`);
+  res.json({ success: true, size: content.length });
+});
+
+// ✅ ADMIN: Script দেখুন / পড়ুন
+app.get("/admin/get-script", async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  const doc = await getSettings().findOne({ _id: "main_script" });
+  if (!doc) return res.json({ content: '', updatedAt: null, size: 0 });
+  res.json({ content: doc.content, updatedAt: doc.updatedAt, size: doc.size });
+});
+
+// ✅ ADMIN: Script মুছুন
+app.post("/admin/delete-script", async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  await getSettings().deleteOne({ _id: "main_script" });
+  console.log(`[Admin] Script deleted`);
+  res.json({ success: true });
 });
 
 const PORT = process.env.PORT || 3000;
