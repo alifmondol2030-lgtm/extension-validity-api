@@ -94,6 +94,7 @@
   .ms-status-dot{width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 2s infinite;}
   @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
   .ms-note{font-size:11px;color:var(--muted);font-family:'Share Tech Mono',monospace;line-height:1.6;margin-top:6px;padding:8px 12px;background:#030810;border-radius:6px;border-left:2px solid rgba(255,170,0,0.4);}
+  /* Per-user MS popup styles */
   .user-ms-display{background:#0d0820;border:1px solid rgba(170,68,255,0.3);border-radius:8px;padding:12px 14px;font-family:'Share Tech Mono',monospace;font-size:12px;display:flex;gap:20px;align-items:center;margin-bottom:14px;}
   .user-ms-current{display:flex;flex-direction:column;gap:2px;}
   .user-ms-current-label{font-size:10px;color:var(--muted);letter-spacing:1px;}
@@ -101,22 +102,6 @@
   .ms-popup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
   .ms-popup-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
   .ms-popup-presets span{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;align-self:center;}
-
-  /* ===== SCRIPT EDITOR STYLES ===== */
-  .script-card{border-color:rgba(0,170,255,0.3);}
-  .script-card::before{background:linear-gradient(90deg,transparent,var(--accent2),transparent);}
-  .script-card .card-title{color:var(--accent2);}
-  .script-status-bar{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:10px 14px;background:#060d14;border:1px solid var(--border);border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:11px;flex-wrap:wrap;}
-  .script-status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-  .script-status-dot.live{background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 2s infinite;}
-  .script-status-dot.empty{background:var(--danger);}
-  .script-textarea{width:100%;min-height:280px;padding:14px;background:#030810;border:1px solid var(--border);border-radius:8px;color:#b8ffcc;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;resize:vertical;transition:border-color 0.2s;line-height:1.6;tab-size:2;}
-  .script-textarea:focus{border-color:var(--accent2);}
-  .script-textarea::placeholder{color:var(--muted);}
-  .script-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
-  .script-info{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-top:8px;line-height:1.7;padding:8px 12px;background:#030810;border-radius:6px;border-left:2px solid rgba(0,170,255,0.4);}
-  .char-count{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;}
-  .char-count span{color:var(--accent2);}
 </style>
 </head>
 <body>
@@ -124,7 +109,7 @@
   <div class="header">
     <div class="header-logo">⚡ Admin Control System</div>
     <h1>LUCKYLOOP</h1>
-    <div class="header-sub">PER-USER VALIDITY + MS + SCRIPT PANEL · v4.2</div>
+    <div class="header-sub">PER-USER VALIDITY + MS PANEL · v4.1</div>
   </div>
 
   <!-- LOGIN -->
@@ -154,53 +139,6 @@
         <button class="btn btn-success" onclick="restoreFromBackup()" id="restoreBtn" style="display:none;">↑ Server এ Restore করুন</button>
         <button class="btn btn-primary" onclick="saveBackup()">💾 এখনই Backup নিন</button>
         <button class="btn btn-secondary btn-sm" onclick="clearBackup()">🗑 Backup মুছুন</button>
-      </div>
-    </div>
-
-    <!-- ✅ SCRIPT EDITOR CARD -->
-    <div class="card script-card">
-      <div class="card-title" style="color:var(--accent2);">📜 LuckyLoop Script Manager</div>
-
-      <!-- Status bar -->
-      <div class="script-status-bar">
-        <div class="script-status-dot" id="scriptStatusDot" style="background:var(--muted);"></div>
-        <span id="scriptStatusText" style="color:var(--muted);">Loading...</span>
-        <span style="margin-left:auto;" id="scriptUpdatedAt"></span>
-      </div>
-
-      <!-- Textarea -->
-      <div class="input-group">
-        <label>luckyloop.js — Full Script Content</label>
-        <textarea
-          class="script-textarea"
-          id="scriptContent"
-          placeholder="এখানে luckyloop.js এর পুরো script paste করুন...&#10;&#10;// Example:&#10;console.log('LuckyLoop loaded!');&#10;// ... আপনার সব code এখানে"
-          oninput="updateCharCount()"
-          onkeydown="handleScriptTab(event)"
-        ></textarea>
-        <div class="char-count">Characters: <span id="charCount">0</span></div>
-      </div>
-
-      <!-- Action buttons -->
-      <div class="script-actions">
-        <button class="btn btn-primary" onclick="saveScript()" style="flex:1;">
-          💾 Script Save করুন (Server এ)
-        </button>
-        <button class="btn btn-secondary" onclick="loadScript()">
-          ↻ Load
-        </button>
-        <button class="btn btn-danger btn-sm" onclick="deleteScript()">
-          🗑 Delete
-        </button>
-      </div>
-
-      <!-- Info note -->
-      <div class="script-info">
-        ℹ️ <strong style="color:var(--accent2);">কিভাবে কাজ করে:</strong><br>
-        ১. এখানে luckyloop.js এর পুরো code paste করুন<br>
-        ২. "Script Save করুন" চাপুন → server এ MongoDB তে save হবে<br>
-        ৩. Extension এর luckyloop.js শুধু <code style="color:var(--accent);">/get-script</code> endpoint call করে নতুন code নামাবে<br>
-        ৪. License verify হলেই script চলবে — invalid key হলে চলবে না
       </div>
     </div>
 
@@ -313,7 +251,7 @@
     </div>
   </div>
 
-  <div class="footer">LUCKYLOOP ADMIN · PER-USER MS + VALIDITY + SCRIPT · v4.2</div>
+  <div class="footer">LUCKYLOOP ADMIN · PER-USER MS + VALIDITY · v4.1</div>
 </div>
 
 <!-- Extend Popup -->
@@ -343,6 +281,8 @@
 <div class="popup-box ms-popup hidden" id="msUserPopup">
   <h3 class="ms-title">⚡ Per-User MS Delay</h3>
   <div style="margin-bottom:10px;font-size:12px;color:var(--muted);font-family:'Share Tech Mono',monospace;" id="msUserInfo"></div>
+
+  <!-- current ms display -->
   <div class="user-ms-display" id="msUserCurrentDisplay">
     <div class="user-ms-current">
       <span class="user-ms-current-label">CURRENT DELAY 1</span>
@@ -354,6 +294,7 @@
     </div>
     <div id="msUserSourceBadge"></div>
   </div>
+
   <div class="ms-popup-grid">
     <div class="input-group">
       <label>Delay 1 (ms)</label>
@@ -364,6 +305,7 @@
       <input type="number" id="msUserVal2" placeholder="e.g. 1150" min="100" max="9999">
     </div>
   </div>
+
   <div class="ms-popup-presets">
     <span>Preset:</span>
     <button class="preset-btn" onclick="setMsUserPreset(800,950)">800/950</button>
@@ -371,11 +313,13 @@
     <button class="preset-btn" onclick="setMsUserPreset(1200,1400)">1200/1400</button>
     <button class="preset-btn" onclick="setMsUserPreset(1500,1800)">1500/1800</button>
   </div>
+
   <div style="display:flex;gap:8px;flex-direction:column;">
     <button class="btn btn-ms btn-full" onclick="saveMsUserValues()">💾 এই User এ Save করুন</button>
     <button class="btn btn-secondary btn-full" onclick="clearMsUserValues()" id="msUserClearBtn">🔄 Global এ Reset করুন</button>
     <button class="btn btn-secondary" onclick="closeMsUserPopup()">Cancel</button>
   </div>
+
   <div style="margin-top:10px;font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;line-height:1.6;background:#030810;padding:8px;border-radius:6px;border-left:2px solid rgba(170,68,255,0.4);">
     ℹ️ এই user reload দিলেই নতুন MS apply হবে।<br>
     "Global এ Reset" দিলে per-user ms মুছে global default ব্যবহার করবে।
@@ -388,118 +332,6 @@ const BACKUP_KEY = 'LuckyLoop_AdminBackup_v4';
 let _currentUsers = {};
 let _extendKey = null;
 let _msUserKey = null;
-
-// ==================== SCRIPT MANAGER ====================
-
-function updateCharCount() {
-  const len = document.getElementById('scriptContent').value.length;
-  document.getElementById('charCount').textContent = len.toLocaleString();
-}
-
-function handleScriptTab(e) {
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    const ta = e.target;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    ta.value = ta.value.substring(0, start) + '  ' + ta.value.substring(end);
-    ta.selectionStart = ta.selectionEnd = start + 2;
-    updateCharCount();
-  }
-}
-
-async function loadScript() {
-  try {
-    const res = await fetch(`${SERVER_URL}/admin/get-script`, {
-      headers: { 'x-admin-secret': ADMIN_SECRET }
-    });
-    const d = await res.json();
-
-    const dot = document.getElementById('scriptStatusDot');
-    const statusText = document.getElementById('scriptStatusText');
-    const updatedEl = document.getElementById('scriptUpdatedAt');
-
-    if (d.content && d.content.trim().length > 0) {
-      document.getElementById('scriptContent').value = d.content;
-      dot.className = 'script-status-dot live';
-      statusText.textContent = `✅ Script live আছে · ${(d.size || d.content.length).toLocaleString()} chars`;
-      statusText.style.color = 'var(--success)';
-      if (d.updatedAt) {
-        const dt = new Date(d.updatedAt);
-        updatedEl.textContent = `Last updated: ${dt.toLocaleDateString('en-GB')} ${dt.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})}`;
-      }
-      updateCharCount();
-      log('✅ Script loaded from server', 'ok');
-    } else {
-      dot.className = 'script-status-dot empty';
-      statusText.textContent = '⚠️ কোনো script নেই — এখানে paste করে save করুন';
-      statusText.style.color = 'var(--warn)';
-      updatedEl.textContent = '';
-      log('⚠️ Server এ কোনো script নেই', 'warn');
-    }
-  } catch (err) {
-    log('❌ Script load failed: ' + err.message, 'err');
-  }
-}
-
-async function saveScript() {
-  const content = document.getElementById('scriptContent').value.trim();
-  if (!content) {
-    alert('Script empty! কিছু paste করুন আগে।');
-    return;
-  }
-  if (!confirm(`Server এ script save করবেন?\n\n${content.length.toLocaleString()} characters\n\nসকল licensed user এর extension এ এই নতুন script চলবে।`)) return;
-
-  try {
-    const res = await fetch(`${SERVER_URL}/admin/set-script`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ content })
-    });
-    const d = await res.json();
-    if (d.success) {
-      log(`✅ Script saved: ${(d.size || content.length).toLocaleString()} chars`, 'ok');
-      // status update
-      const dot = document.getElementById('scriptStatusDot');
-      const statusText = document.getElementById('scriptStatusText');
-      const updatedEl = document.getElementById('scriptUpdatedAt');
-      dot.className = 'script-status-dot live';
-      statusText.textContent = `✅ Script live আছে · ${content.length.toLocaleString()} chars`;
-      statusText.style.color = 'var(--success)';
-      const now = new Date();
-      updatedEl.textContent = `Last updated: ${now.toLocaleDateString('en-GB')} ${now.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})}`;
-    } else {
-      log('❌ Save failed: ' + (d.error || 'Unknown'), 'err');
-    }
-  } catch (err) {
-    log('❌ ' + err.message, 'err');
-  }
-}
-
-async function deleteScript() {
-  if (!confirm('Server থেকে script মুছবেন?\n\nExtension গুলো আর script পাবে না!')) return;
-  try {
-    const res = await fetch(`${SERVER_URL}/admin/delete-script`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({})
-    });
-    const d = await res.json();
-    if (d.success) {
-      document.getElementById('scriptContent').value = '';
-      updateCharCount();
-      const dot = document.getElementById('scriptStatusDot');
-      const statusText = document.getElementById('scriptStatusText');
-      dot.className = 'script-status-dot empty';
-      statusText.textContent = '⚠️ কোনো script নেই';
-      statusText.style.color = 'var(--warn)';
-      document.getElementById('scriptUpdatedAt').textContent = '';
-      log('🗑 Script deleted from server', 'warn');
-    }
-  } catch (err) {
-    log('❌ ' + err.message, 'err');
-  }
-}
 
 // ==================== MS VALUES (GLOBAL) ====================
 function setMsPreset(v1, v2) {
@@ -559,12 +391,16 @@ async function saveMsValues() {
 function openMsUserPopup(key) {
   _msUserKey = key;
   const u = _currentUsers[key];
+
   document.getElementById('msUserInfo').textContent = `👤 ${u.name || key}  ·  ${key}`;
+
+  // current values
   const hasCustom = u.ms1 && u.ms2;
   const ms1 = u.ms1 || '—';
   const ms2 = u.ms2 || '—';
   document.getElementById('msUserCurrent1').textContent = hasCustom ? ms1 + ' ms' : 'Global';
   document.getElementById('msUserCurrent2').textContent = hasCustom ? ms2 + ' ms' : 'Global';
+
   const badge = document.getElementById('msUserSourceBadge');
   if (hasCustom) {
     badge.innerHTML = `<span class="ms-badge">Custom</span>`;
@@ -577,6 +413,7 @@ function openMsUserPopup(key) {
     document.getElementById('msUserVal1').value = '';
     document.getElementById('msUserVal2').value = '';
   }
+
   document.getElementById('msUserOverlay').classList.remove('hidden');
   document.getElementById('msUserPopup').classList.remove('hidden');
 }
@@ -674,6 +511,7 @@ async function restoreFromBackup() {
           body: JSON.stringify({ key, active: false })
         });
       }
+      // per-user ms restore
       if (d.success && user.ms1 && user.ms2) {
         await fetch(`${SERVER_URL}/admin/set-user-ms`, {
           method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
@@ -701,7 +539,7 @@ function login() {
   document.getElementById('loginSection').classList.add('hidden');
   document.getElementById('mainPanel').classList.remove('hidden');
   log('Logged in: ' + SERVER_URL, 'info');
-  updateBackupUI(); fetchStatus(); fetchMsValues(); loadScript();
+  updateBackupUI(); fetchStatus(); fetchMsValues();
 }
 function logout() {
   sessionStorage.clear();
@@ -778,6 +616,7 @@ function renderUsers(users) {
       statusBadge = `<span class="badge badge-active">✅ ACTIVE</span>`;
     }
 
+    // MS column
     const hasCustomMs = u.ms1 && u.ms2;
     const msBadge = hasCustomMs
       ? `<span class="ms-badge">${u.ms1}/${u.ms2}ms</span>`
