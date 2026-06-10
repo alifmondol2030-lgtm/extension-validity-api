@@ -103,70 +103,18 @@
   .ms-popup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
   .ms-popup-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
   .ms-popup-presets span{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;align-self:center;}
-  .btn-reset-browser{background:linear-gradient(135deg,#ff6600,#cc4400);color:#fff;}
-  .btn-reset-browser:hover{box-shadow:0 4px 20px rgba(255,102,0,0.4);}
-  .lock-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;font-size:10px;font-family:'Share Tech Mono',monospace;}
-  .lock-badge.locked{background:rgba(255,102,0,0.15);color:#ff9944;border:1px solid rgba(255,102,0,0.3);}
-  .lock-badge.unlocked{background:rgba(74,122,138,0.15);color:var(--muted);border:1px solid rgba(74,122,138,0.3);}
-
-  /* ======== PENDING REQUEST COUNTER BUTTON ======== */
-  .req-counter-btn{
-    position:relative;
-    padding:5px 10px;
-    background:#060d14;
-    border:1px solid rgba(255,170,0,0.35);
-    border-radius:8px;
-    color:var(--warn);
-    font-family:'Share Tech Mono',monospace;
-    font-size:12px;
-    cursor:pointer;
-    transition:all 0.2s;
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-    font-weight:bold;
-  }
+  .req-counter-btn{position:relative;padding:5px 10px;background:#060d14;border:1px solid rgba(255,170,0,0.35);border-radius:8px;color:var(--warn);font-family:'Share Tech Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:5px;font-weight:bold;}
   .req-counter-btn:hover{background:rgba(255,170,0,0.1);border-color:var(--warn);box-shadow:0 0 10px rgba(255,170,0,0.2);}
-  .req-counter-btn .req-dot{
-    position:absolute;
-    top:-4px;right:-4px;
-    width:16px;height:16px;
-    background:var(--danger);
-    border-radius:50%;
-    font-size:9px;
-    display:flex;align-items:center;justify-content:center;
-    color:#fff;font-weight:bold;
-    animation:reqPulse 1.5s infinite;
-    border:2px solid var(--bg);
-  }
+  .req-counter-btn .req-dot{position:absolute;top:-4px;right:-4px;width:16px;height:16px;background:var(--danger);border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;animation:reqPulse 1.5s infinite;border:2px solid var(--bg);}
   @keyframes reqPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,68,68,0.5);}50%{box-shadow:0 0 0 5px rgba(255,68,68,0);}}
   .req-counter-btn.zero{color:var(--muted);border-color:var(--border);cursor:default;}
   .req-counter-btn.zero:hover{background:#060d14;border-color:var(--border);box-shadow:none;}
-
-  /* ======== REQUEST LIST IN POPUP ======== */
   .req-list{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;margin-bottom:14px;}
-  .req-item{
-    background:#060d14;
-    border:1px solid var(--border);
-    border-radius:8px;
-    padding:10px 12px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
-    transition:border-color 0.2s;
-  }
+  .req-item{background:#060d14;border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;transition:border-color 0.2s;}
   .req-item:hover{border-color:rgba(255,170,0,0.3);}
   .req-item.allowed{border-color:rgba(0,255,136,0.3);background:rgba(0,255,136,0.04);}
   .req-item.denied{border-color:rgba(255,68,68,0.2);background:rgba(255,68,68,0.03);opacity:0.6;}
-  .req-num{
-    width:26px;height:26px;border-radius:50%;
-    background:rgba(255,170,0,0.15);
-    border:1px solid rgba(255,170,0,0.4);
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Share Tech Mono',monospace;font-size:11px;
-    color:var(--warn);font-weight:bold;flex-shrink:0;
-  }
+  .req-num{width:26px;height:26px;border-radius:50%;background:rgba(255,170,0,0.15);border:1px solid rgba(255,170,0,0.4);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--warn);font-weight:bold;flex-shrink:0;}
   .req-info{flex:1;min-width:0;}
   .req-fp{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .req-time{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-top:2px;}
@@ -189,7 +137,7 @@
   <div class="header">
     <div class="header-logo">⚡ Admin Control System</div>
     <h1>LUCKYLOOP</h1>
-    <div class="header-sub">PER-USER VALIDITY + MS + BROWSER LOCK + REQUEST APPROVE · v4.3</div>
+    <div class="header-sub">PER-USER VALIDITY + MS + REQUEST APPROVE · v4.4</div>
   </div>
 
   <div id="loginSection">
@@ -301,7 +249,7 @@
     </div>
   </div>
 
-  <div class="footer">LUCKYLOOP ADMIN · PER-USER MS + BROWSER LOCK + REQUEST APPROVE · v4.3</div>
+  <div class="footer">LUCKYLOOP ADMIN · PER-USER MS + REQUEST APPROVE · v4.4</div>
 </div>
 
 <!-- Extend Popup -->
@@ -354,7 +302,7 @@
   </div>
 </div>
 
-<!-- ======== REQUEST APPROVAL POPUP ======== -->
+<!-- Request Approval Popup -->
 <div class="popup-overlay hidden" id="reqOverlay" onclick="closeReqPopup()"></div>
 <div class="popup-box req-popup hidden" id="reqPopup">
   <h3 class="req-title">🔔 Activation Requests</h3>
@@ -381,7 +329,6 @@ let _currentUsers = {};
 let _extendKey = null;
 let _msUserKey = null;
 let _reqKey = null;
-// In-memory pending requests store: { licenseKey: [ {id, fp, userAgent, requestedAt, status} ] }
 let _pendingRequests = {};
 
 function setMsPreset(v1, v2) { document.getElementById('msVal1').value = v1; document.getElementById('msVal2').value = v2; }
@@ -461,67 +408,28 @@ async function clearMsUserValues() {
   } catch (err) { log('❌ ' + err.message, 'err'); }
 }
 
-// ==================== BROWSER RESET ====================
-async function resetBrowser(key) {
-  if (!confirm(`"${key}" এর browser lock reset করবেন?\nReset করলে যেকোনো browser এ আবার চলবে।`)) return;
-  try {
-    const res = await fetch(`${SERVER_URL}/admin/reset-browser`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ key })
-    });
-    const d = await res.json();
-    if (d.success) { log('🔓 Browser lock reset: ' + key, 'ok'); fetchStatus(); }
-    else log('❌ ' + (d.error || 'Failed'), 'err');
-  } catch (err) { log('❌ ' + err.message, 'err'); }
-}
-
 // ==================== PENDING REQUESTS ====================
-/*
-  এই system কাজ করে এভাবে:
-  - Extension যখন verify করতে চায় কিন্তু অনুমতি নেই, সে একটা
-    POST /verify-request করে { key, fingerprint, userAgent, requestedAt }
-  - Server সেটা pending queue তে রাখে
-  - Admin panel GET /admin/pending-requests দিয়ে সব দেখতে পারে
-  - Admin allow বা deny করে POST /admin/approve-request বা /admin/deny-request দিয়ে
-
-  যদি server এ এই endpoints না থাকে, নিচে fallback আছে।
-*/
-
 async function fetchPendingRequests(key) {
   try {
-    const res = await fetch(`${SERVER_URL}/admin/pending-requests?key=${encodeURIComponent(key)}`, {
-      headers: { 'x-admin-secret': ADMIN_SECRET }
-    });
-    if (!res.ok) {
-      // Fallback: server endpoint নেই — local memory থেকে দেখাও
-      return _pendingRequests[key] || [];
-    }
+    const res = await fetch(`${SERVER_URL}/admin/pending-requests?key=${encodeURIComponent(key)}`, { headers: { 'x-admin-secret': ADMIN_SECRET } });
+    if (!res.ok) return _pendingRequests[key] || [];
     const d = await res.json();
     return d.requests || [];
-  } catch {
-    return _pendingRequests[key] || [];
-  }
+  } catch { return _pendingRequests[key] || []; }
 }
 
 async function fetchAllPendingCounts() {
   try {
-    const res = await fetch(`${SERVER_URL}/admin/pending-requests`, {
-      headers: { 'x-admin-secret': ADMIN_SECRET }
-    });
+    const res = await fetch(`${SERVER_URL}/admin/pending-requests`, { headers: { 'x-admin-secret': ADMIN_SECRET } });
     if (!res.ok) return {};
     const d = await res.json();
-    // d.requests হলো সব key এর pending requests একসাথে
-    // group করো key অনুযায়ী
     const grouped = {};
     (d.requests || []).forEach(r => {
       if (!grouped[r.key]) grouped[r.key] = [];
       grouped[r.key].push(r);
     });
     return grouped;
-  } catch {
-    return _pendingRequests;
-  }
+  } catch { return _pendingRequests; }
 }
 
 async function openReqPopup(key) {
@@ -553,7 +461,6 @@ function renderReqList(reqs) {
     const timeStr = r.requestedAt ? new Date(r.requestedAt).toLocaleString('en-GB', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '—';
     const fpShort = r.fingerprint ? r.fingerprint.substring(0, 20) + '...' : (r.fp || 'Unknown Browser');
     const ua = r.userAgent ? r.userAgent.substring(0, 50) + (r.userAgent.length > 50 ? '...' : '') : '';
-    
     return `<div class="req-item ${isAllowed ? 'allowed' : isDenied ? 'denied' : ''}" id="req-item-${r.id || i}">
       <div class="req-num">${i + 1}</div>
       <div class="req-info">
@@ -575,30 +482,19 @@ function renderReqList(reqs) {
 async function approveRequest(key, reqId, allow) {
   const endpoint = allow ? '/admin/approve-request' : '/admin/deny-request';
   try {
-    const res = await fetch(`${SERVER_URL}${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ key, requestId: reqId })
-    });
+    const res = await fetch(`${SERVER_URL}${endpoint}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET }, body: JSON.stringify({ key, requestId: reqId }) });
     if (!res.ok) {
-      // Fallback: local memory তে status update করো
       if (_pendingRequests[key]) {
         const r = _pendingRequests[key].find((x, i) => String(x.id || i) === String(reqId));
         if (r) r.status = allow ? 'allowed' : 'denied';
       }
       log(`${allow ? '✅ Allowed' : '✕ Denied'} (local): ${key} req#${reqId}`, allow ? 'ok' : 'warn');
-      await fetchReqList();
-      return;
+      await fetchReqList(); return;
     }
     const d = await res.json();
-    if (d.success) {
-      log(`${allow ? '✅ Allowed' : '✕ Denied'}: ${key} req#${reqId}`, allow ? 'ok' : 'warn');
-      await fetchReqList();
-      fetchStatus();
-    } else log('❌ ' + (d.error || 'Failed'), 'err');
-  } catch (err) {
-    log('❌ ' + err.message, 'err');
-  }
+    if (d.success) { log(`${allow ? '✅ Allowed' : '✕ Denied'}: ${key} req#${reqId}`, allow ? 'ok' : 'warn'); await fetchReqList(); fetchStatus(); }
+    else log('❌ ' + (d.error || 'Failed'), 'err');
+  } catch (err) { log('❌ ' + err.message, 'err'); }
 }
 
 async function allowAllRequests() {
@@ -606,9 +502,7 @@ async function allowAllRequests() {
   const reqs = await fetchPendingRequests(_reqKey);
   const pending = reqs.filter(r => !r.status || r.status === 'pending');
   if (pending.length === 0) { log('কোনো pending request নেই', 'warn'); return; }
-  for (const r of pending) {
-    await approveRequest(_reqKey, r.id || reqs.indexOf(r), true);
-  }
+  for (const r of pending) await approveRequest(_reqKey, r.id || reqs.indexOf(r), true);
 }
 
 async function denyAllRequests() {
@@ -617,16 +511,10 @@ async function denyAllRequests() {
   const pending = reqs.filter(r => !r.status || r.status === 'pending');
   if (pending.length === 0) { log('কোনো pending request নেই', 'warn'); return; }
   if (!confirm(`${pending.length} টি সব request deny করবেন?`)) return;
-  for (const r of pending) {
-    await approveRequest(_reqKey, r.id || reqs.indexOf(r), false);
-  }
+  for (const r of pending) await approveRequest(_reqKey, r.id || reqs.indexOf(r), false);
 }
 
-function closeReqPopup() {
-  document.getElementById('reqOverlay').classList.add('hidden');
-  document.getElementById('reqPopup').classList.add('hidden');
-  _reqKey = null;
-}
+function closeReqPopup() { document.getElementById('reqOverlay').classList.add('hidden'); document.getElementById('reqPopup').classList.add('hidden'); _reqKey = null; }
 
 // ==================== BACKUP ====================
 function saveBackup() {
@@ -687,21 +575,13 @@ async function fetchStatus() {
     if (res.status === 401) { log('❌ Wrong secret!', 'err'); return; }
     const data = await res.json();
     _currentUsers = data.users || {};
-
-    // Pending requests fetch করো
     const pendingGrouped = await fetchAllPendingCounts();
     _pendingRequests = pendingGrouped;
-
     renderUsers(_currentUsers, _pendingRequests);
     if (Object.keys(_currentUsers).length > 0) { localStorage.setItem(BACKUP_KEY, JSON.stringify({ users: _currentUsers, savedAt: new Date().toISOString() })); updateBackupUI(); }
-    
-    // Total pending count
     let totalPending = 0;
-    Object.values(_pendingRequests).forEach(arr => {
-      totalPending += arr.filter(r => !r.status || r.status === 'pending').length;
-    });
+    Object.values(_pendingRequests).forEach(arr => { totalPending += arr.filter(r => !r.status || r.status === 'pending').length; });
     document.getElementById('cPending').textContent = totalPending;
-
     log(`Loaded: ${data.totalUsers} users, ${data.activeCount} active, ${totalPending} pending requests`, 'ok');
   } catch (err) {
     log('Server connect failed: ' + err.message, 'err');
@@ -752,15 +632,9 @@ function renderUsers(users, pendingMap) {
       ? `<button class="btn btn-warn btn-sm" onclick="toggleUser('${key}',false)">Disable</button>`
       : `<button class="btn btn-primary btn-sm" onclick="toggleUser('${key}',true)">Enable</button>`;
 
-    const browserBtn = u.browserFp
-      ? `<button class="btn btn-sm btn-reset-browser" onclick="resetBrowser('${key}')">🔓 Reset Browser</button>`
-      : `<span class="lock-badge unlocked">🔒 No Lock</span>`;
-
-    // ======== REQUEST COUNTER BUTTON ========
     const keyReqs = (pendingMap && pendingMap[key]) ? pendingMap[key] : [];
     const pendingCount = keyReqs.filter(r => !r.status || r.status === 'pending').length;
     const totalCount = keyReqs.length;
-    
     let reqBtnHtml;
     if (totalCount === 0) {
       reqBtnHtml = `<button class="req-counter-btn zero" onclick="openReqPopup('${key}')" title="কোনো request নেই">🔔 0</button>`;
@@ -783,7 +657,6 @@ function renderUsers(users, pendingMap) {
         <button class="btn btn-ms btn-sm" onclick="openMsUserPopup('${key}')">⚡ MS</button>
         <button class="btn btn-success btn-sm" onclick="openExtendPopup('${key}')">📅</button>
         ${toggleBtn}
-        ${browserBtn}
         <button class="btn btn-danger btn-sm" onclick="deleteUser('${key}')">✕</button>
       </div></td>
     </tr>`;
@@ -858,20 +731,5 @@ function log(msg, type = 'info') {
   while (box.children.length > 50) box.removeChild(box.firstChild);
 }
 </script>
-
-<!-- ========================================================
-  📌 BACKEND ENDPOINTS যা আপনার Server এ যোগ করতে হবে:
-  
-  GET  /admin/pending-requests?key=LUCKY-XXXX          → সব / নির্দিষ্ট key এর pending requests
-  POST /admin/approve-request  { key, requestId }      → allow করুন
-  POST /admin/deny-request     { key, requestId }      → deny করুন
-  POST /verify-request         { key, fingerprint, userAgent, requestedAt }  → Extension থেকে request পাঠাবে
-  
-  Extension এর verify flow:
-  1. Extension verify করতে চাইলে POST /verify-request করবে
-  2. Server "pending" status দিয়ে queue তে রাখবে → response: { status: "pending" }
-  3. Admin allow করলে সেই fingerprint এর জন্য verify pass হবে
-  4. Extension poll করবে বা next launch এ check করবে
-======================================================== -->
 </body>
 </html>
