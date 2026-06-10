@@ -16,8 +16,9 @@ async function connectDB() {
   console.log("✅ MongoDB connected");
 }
 
-function getUsers() { return db.collection("users"); }
+function getUsers()    { return db.collection("users"); }
 function getSettings() { return db.collection("settings"); }
+function getRequests() { return db.collection("activation_requests"); } // ← নতুন collection
 
 function checkAdmin(req, res) {
   if (req.headers["x-admin-secret"] !== ADMIN_SECRET) {
@@ -51,14 +52,12 @@ app.get("/check", async (req, res) => {
   // ── Browser Lock ──
   if (browserFingerprint) {
     if (!user.browserFp) {
-      // প্রথমবার — fingerprint save করো
       await getUsers().updateOne(
         { key: licenseKey },
         { $set: { browserFp: browserFingerprint, browserLockedAt: new Date().toISOString() } }
       );
       console.log(`[Lock] Browser locked for: ${licenseKey}`);
     } else if (user.browserFp !== browserFingerprint) {
-      // অন্য browser — block
       return res.json({
         valid: false,
         reason: "This license is locked to another browser. Contact your admin to reset."
@@ -95,6 +94,77 @@ app.get("/get-ms", async (req, res) => {
   }
   const ms = await getGlobalMsValues();
   res.json({ ms1: ms.ms1, ms2: ms.ms2 });
+});
+
+// ==================== NEW: ACTIVATION REQUEST (Extension থেকে call হবে) ====================
+/*
+  Extension যখন প্রথমবার verify করতে চায়, সে এই endpoint এ POST করবে।
+  Server টা request টা "pending" হিসেবে save করবে।
+  Admin allow করলে সেই fingerprint এর জন্য verify pass হবে।
+  
+  Extension কে poll করতে হবে:  GET /check-approval?key=LUCKY-XXXX&fp=FINGERPRINT
+*/
+
+app.post("/verify-request", async (req, res) => {
+  const { key, fingerprint, userAgent } = req.body;
+  if (!key || !fingerprint) {
+    return res.status(400).json({ error: "key and fingerprint required" });
+  }
+
+  const licenseKey = key.toUpperCase();
+  const user = await getUsers().findOne({ key: licenseKey });
+  if (!user) return res.json({ status: "not_found", reason: "License key not found" });
+  if (!user.active) return res.json({ status: "disabled", reason: "License disabled" });
+
+  // Check: এই fingerprint এর জন্য আগে কোনো approved request আছে?
+  const existing = await getRequests().findOne({ key: licenseKey, fingerprint, status: "allowed" });
+  if (existing) {
+    return res.json({ status: "allowed", reason: "Already approved" });
+  }
+
+  // Check: pending request আছে?
+  const pending = await getRequests().findOne({ key: licenseKey, fingerprint, status: "pending" });
+  if (pending) {
+    return res.json({ status: "pending", reason: "Waiting for admin approval", requestId: pending._id });
+  }
+
+  // নতুন request তৈরি করো
+  const newReq = {
+    key: licenseKey,
+    fingerprint,
+    userAgent: userAgent || "Unknown",
+    requestedAt: new Date().toISOString(),
+    status: "pending" // pending | allowed | denied
+  };
+  const result = await getRequests().insertOne(newReq);
+  console.log(`[Request] New activation request: ${licenseKey} | fp: ${fingerprint.substring(0, 12)}...`);
+
+  res.json({
+    status: "pending",
+    reason: "Your request has been sent to admin. Please wait for approval.",
+    requestId: result.insertedId
+  });
+});
+
+// Extension এটা poll করবে — allowed হয়েছে কিনা জানতে
+app.get("/check-approval", async (req, res) => {
+  const key = (req.query.key || "").toUpperCase();
+  const fingerprint = req.query.fp || "";
+
+  if (!key || !fingerprint) {
+    return res.status(400).json({ error: "key and fp required" });
+  }
+
+  const approved = await getRequests().findOne({ key, fingerprint, status: "allowed" });
+  if (approved) return res.json({ status: "allowed" });
+
+  const denied = await getRequests().findOne({ key, fingerprint, status: "denied" });
+  if (denied) return res.json({ status: "denied", reason: "Your request was denied by admin." });
+
+  const pending = await getRequests().findOne({ key, fingerprint, status: "pending" });
+  if (pending) return res.json({ status: "pending", reason: "Waiting for admin approval." });
+
+  return res.json({ status: "not_found" });
 });
 
 // ==================== ADMIN ENDPOINTS ====================
@@ -157,6 +227,8 @@ app.post("/admin/delete-user", async (req, res) => {
   const { key } = req.body;
   if (!key) return res.status(400).json({ error: "key required" });
   await getUsers().deleteOne({ key: key.toUpperCase() });
+  // ওই key এর সব requests ও মুছে দাও
+  await getRequests().deleteMany({ key: key.toUpperCase() });
   res.json({ success: true });
 });
 
@@ -193,7 +265,6 @@ app.post("/admin/set-user-ms", async (req, res) => {
   res.json({ success: true, ms1: parseInt(ms1), ms2: parseInt(ms2) });
 });
 
-// ── ADMIN: Reset browser lock ──
 app.post("/admin/reset-browser", async (req, res) => {
   if (!checkAdmin(req, res)) return;
   const { key } = req.body;
@@ -204,6 +275,81 @@ app.post("/admin/reset-browser", async (req, res) => {
   );
   if (result.matchedCount === 0) return res.status(404).json({ error: "User not found" });
   console.log(`[Admin] Browser lock reset for: ${key}`);
+  res.json({ success: true });
+});
+
+// ── ADMIN: সব pending requests দেখো ──
+app.get("/admin/pending-requests", async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  const filterKey = req.query.key ? req.query.key.toUpperCase() : null;
+
+  const query = filterKey ? { key: filterKey } : {};
+  const requests = await getRequests()
+    .find(query)
+    .sort({ requestedAt: -1 })
+    .toArray();
+
+  // _id কে string এ convert করো (admin panel এ কাজে লাগবে)
+  const formatted = requests.map(r => ({
+    id: r._id.toString(),
+    key: r.key,
+    fingerprint: r.fingerprint,
+    userAgent: r.userAgent,
+    requestedAt: r.requestedAt,
+    status: r.status
+  }));
+
+  res.json({ requests: formatted, total: formatted.length });
+});
+
+// ── ADMIN: Request approve করো ──
+app.post("/admin/approve-request", async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  const { key, requestId } = req.body;
+  if (!key || !requestId) return res.status(400).json({ error: "key and requestId required" });
+
+  const { ObjectId } = require("mongodb");
+  let oid;
+  try { oid = new ObjectId(requestId); }
+  catch { return res.status(400).json({ error: "Invalid requestId" }); }
+
+  const result = await getRequests().updateOne(
+    { _id: oid, key: key.toUpperCase() },
+    { $set: { status: "allowed", approvedAt: new Date().toISOString() } }
+  );
+  if (result.matchedCount === 0) return res.status(404).json({ error: "Request not found" });
+
+  console.log(`[Admin] ✅ Approved request: ${requestId} for key: ${key}`);
+  res.json({ success: true });
+});
+
+// ── ADMIN: Request deny করো ──
+app.post("/admin/deny-request", async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  const { key, requestId } = req.body;
+  if (!key || !requestId) return res.status(400).json({ error: "key and requestId required" });
+
+  const { ObjectId } = require("mongodb");
+  let oid;
+  try { oid = new ObjectId(requestId); }
+  catch { return res.status(400).json({ error: "Invalid requestId" }); }
+
+  const result = await getRequests().updateOne(
+    { _id: oid, key: key.toUpperCase() },
+    { $set: { status: "denied", deniedAt: new Date().toISOString() } }
+  );
+  if (result.matchedCount === 0) return res.status(404).json({ error: "Request not found" });
+
+  console.log(`[Admin] ✕ Denied request: ${requestId} for key: ${key}`);
+  res.json({ success: true });
+});
+
+// ── ADMIN: কোনো key এর সব denied request মুছো (retry এর জন্য) ──
+app.post("/admin/clear-requests", async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  const { key } = req.body;
+  if (!key) return res.status(400).json({ error: "key required" });
+  await getRequests().deleteMany({ key: key.toUpperCase() });
   res.json({ success: true });
 });
 
