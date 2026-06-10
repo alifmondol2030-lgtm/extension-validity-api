@@ -101,22 +101,11 @@
   .ms-popup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
   .ms-popup-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
   .ms-popup-presets span{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;align-self:center;}
-
-  /* ===== SCRIPT EDITOR STYLES ===== */
-  .script-card{border-color:rgba(0,170,255,0.3);}
-  .script-card::before{background:linear-gradient(90deg,transparent,var(--accent2),transparent);}
-  .script-card .card-title{color:var(--accent2);}
-  .script-status-bar{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:10px 14px;background:#060d14;border:1px solid var(--border);border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:11px;flex-wrap:wrap;}
-  .script-status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-  .script-status-dot.live{background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 2s infinite;}
-  .script-status-dot.empty{background:var(--danger);}
-  .script-textarea{width:100%;min-height:280px;padding:14px;background:#030810;border:1px solid var(--border);border-radius:8px;color:#b8ffcc;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;resize:vertical;transition:border-color 0.2s;line-height:1.6;tab-size:2;}
-  .script-textarea:focus{border-color:var(--accent2);}
-  .script-textarea::placeholder{color:var(--muted);}
-  .script-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
-  .script-info{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-top:8px;line-height:1.7;padding:8px 12px;background:#030810;border-radius:6px;border-left:2px solid rgba(0,170,255,0.4);}
-  .char-count{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;}
-  .char-count span{color:var(--accent2);}
+  .btn-reset-browser{background:linear-gradient(135deg,#ff6600,#cc4400);color:#fff;}
+  .btn-reset-browser:hover{box-shadow:0 4px 20px rgba(255,102,0,0.4);}
+  .lock-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;font-size:10px;font-family:'Share Tech Mono',monospace;}
+  .lock-badge.locked{background:rgba(255,102,0,0.15);color:#ff9944;border:1px solid rgba(255,102,0,0.3);}
+  .lock-badge.unlocked{background:rgba(74,122,138,0.15);color:var(--muted);border:1px solid rgba(74,122,138,0.3);}
 </style>
 </head>
 <body>
@@ -124,10 +113,9 @@
   <div class="header">
     <div class="header-logo">⚡ Admin Control System</div>
     <h1>LUCKYLOOP</h1>
-    <div class="header-sub">PER-USER VALIDITY + MS + SCRIPT PANEL · v4.2</div>
+    <div class="header-sub">PER-USER VALIDITY + MS + BROWSER LOCK · v4.2</div>
   </div>
 
-  <!-- LOGIN -->
   <div id="loginSection">
     <div class="card">
       <div class="card-title">🔐 Admin Authentication</div>
@@ -143,10 +131,8 @@
     </div>
   </div>
 
-  <!-- MAIN PANEL -->
   <div id="mainPanel" class="hidden">
 
-    <!-- BACKUP -->
     <div class="card backup-card">
       <div class="card-title" style="color:var(--success);">💾 Local Backup Status</div>
       <div class="backup-info" id="backupInfo">No backup found</div>
@@ -157,54 +143,6 @@
       </div>
     </div>
 
-    <!-- ✅ SCRIPT EDITOR CARD -->
-    <div class="card script-card">
-      <div class="card-title" style="color:var(--accent2);">📜 LuckyLoop Script Manager</div>
-
-      <!-- Status bar -->
-      <div class="script-status-bar">
-        <div class="script-status-dot" id="scriptStatusDot" style="background:var(--muted);"></div>
-        <span id="scriptStatusText" style="color:var(--muted);">Loading...</span>
-        <span style="margin-left:auto;" id="scriptUpdatedAt"></span>
-      </div>
-
-      <!-- Textarea -->
-      <div class="input-group">
-        <label>luckyloop.js — Full Script Content</label>
-        <textarea
-          class="script-textarea"
-          id="scriptContent"
-          placeholder="এখানে luckyloop.js এর পুরো script paste করুন...&#10;&#10;// Example:&#10;console.log('LuckyLoop loaded!');&#10;// ... আপনার সব code এখানে"
-          oninput="updateCharCount()"
-          onkeydown="handleScriptTab(event)"
-        ></textarea>
-        <div class="char-count">Characters: <span id="charCount">0</span></div>
-      </div>
-
-      <!-- Action buttons -->
-      <div class="script-actions">
-        <button class="btn btn-primary" onclick="saveScript()" style="flex:1;">
-          💾 Script Save করুন (Server এ)
-        </button>
-        <button class="btn btn-secondary" onclick="loadScript()">
-          ↻ Load
-        </button>
-        <button class="btn btn-danger btn-sm" onclick="deleteScript()">
-          🗑 Delete
-        </button>
-      </div>
-
-      <!-- Info note -->
-      <div class="script-info">
-        ℹ️ <strong style="color:var(--accent2);">কিভাবে কাজ করে:</strong><br>
-        ১. এখানে luckyloop.js এর পুরো code paste করুন<br>
-        ২. "Script Save করুন" চাপুন → server এ MongoDB তে save হবে<br>
-        ৩. Extension এর luckyloop.js শুধু <code style="color:var(--accent);">/get-script</code> endpoint call করে নতুন code নামাবে<br>
-        ৪. License verify হলেই script চলবে — invalid key হলে চলবে না
-      </div>
-    </div>
-
-    <!-- GLOBAL MS CONTROL -->
     <div class="card ms-card">
       <div class="card-title">⚡ Global Click Delay (MS) Control</div>
       <div class="ms-current-display" id="msCurrentDisplay">
@@ -212,24 +150,12 @@
           <div class="ms-status-dot"></div>
           <span style="font-size:11px;color:var(--muted);">Global default:</span>
         </div>
-        <div class="ms-val">
-          <span class="ms-val-label">DELAY 1</span>
-          <span class="ms-val-num" id="currentMs1">—</span>
-        </div>
-        <div class="ms-val">
-          <span class="ms-val-label">DELAY 2</span>
-          <span class="ms-val-num" id="currentMs2">—</span>
-        </div>
+        <div class="ms-val"><span class="ms-val-label">DELAY 1</span><span class="ms-val-num" id="currentMs1">—</span></div>
+        <div class="ms-val"><span class="ms-val-label">DELAY 2</span><span class="ms-val-num" id="currentMs2">—</span></div>
       </div>
       <div class="ms-grid">
-        <div class="input-group">
-          <label>Delay 1 (ms)</label>
-          <input type="number" id="msVal1" placeholder="e.g. 990" min="100" max="9999">
-        </div>
-        <div class="input-group">
-          <label>Delay 2 (ms)</label>
-          <input type="number" id="msVal2" placeholder="e.g. 1150" min="100" max="9999">
-        </div>
+        <div class="input-group"><label>Delay 1 (ms)</label><input type="number" id="msVal1" placeholder="e.g. 990" min="100" max="9999"></div>
+        <div class="input-group"><label>Delay 2 (ms)</label><input type="number" id="msVal2" placeholder="e.g. 1150" min="100" max="9999"></div>
         <button class="btn btn-warn" onclick="saveMsValues()" style="padding:11px 20px;">💾 Save</button>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
@@ -239,28 +165,15 @@
         <button class="preset-btn" onclick="setMsPreset(1200,1400)">1200/1400</button>
         <button class="preset-btn" onclick="setMsPreset(1500,1800)">1500/1800</button>
       </div>
-      <div class="ms-note">
-        ℹ️ এটা global default। কোনো user এর আলাদা MS না থাকলে এটা apply হবে।<br>
-        প্রতিটি user এ আলাদা MS দিতে user list এ <strong style="color:#bb77ff;">⚡ MS</strong> button চাপুন।
-      </div>
+      <div class="ms-note">ℹ️ এটা global default। কোনো user এর আলাদা MS না থাকলে এটা apply হবে।<br>প্রতিটি user এ আলাদা MS দিতে user list এ <strong style="color:#bb77ff;">⚡ MS</strong> button চাপুন।</div>
     </div>
 
-    <!-- ADD USER -->
     <div class="card">
       <div class="card-title">➕ New User Add করুন</div>
       <div class="add-user-grid">
-        <div class="input-group">
-          <label>User Name</label>
-          <input type="text" id="newUserName" placeholder="e.g. Rahim">
-        </div>
-        <div class="input-group">
-          <label>License Key</label>
-          <input type="text" id="newUserKey" placeholder="Auto বা নিজে লিখুন">
-        </div>
-        <div class="input-group">
-          <label>Validity (Expiry Date)</label>
-          <input type="date" id="newUserExpiry">
-        </div>
+        <div class="input-group"><label>User Name</label><input type="text" id="newUserName" placeholder="e.g. Rahim"></div>
+        <div class="input-group"><label>License Key</label><input type="text" id="newUserKey" placeholder="Auto বা নিজে লিখুন"></div>
+        <div class="input-group"><label>Validity (Expiry Date)</label><input type="date" id="newUserExpiry"></div>
         <div style="display:flex;flex-direction:column;gap:6px;">
           <label style="font-size:10px;color:transparent;">.</label>
           <button class="btn btn-primary" onclick="addUser()">+ Add</button>
@@ -278,7 +191,6 @@
       </div>
     </div>
 
-    <!-- USER LIST -->
     <div class="card">
       <div class="card-title">👥 User List</div>
       <div class="stats-row" id="statsRow">
@@ -300,7 +212,6 @@
       </table>
     </div>
 
-    <!-- LOG -->
     <div class="card">
       <div class="card-title">📋 Activity Log</div>
       <div class="log-box" id="logBox">
@@ -313,7 +224,7 @@
     </div>
   </div>
 
-  <div class="footer">LUCKYLOOP ADMIN · PER-USER MS + VALIDITY + SCRIPT · v4.2</div>
+  <div class="footer">LUCKYLOOP ADMIN · PER-USER MS + BROWSER LOCK · v4.2</div>
 </div>
 
 <!-- Extend Popup -->
@@ -321,10 +232,7 @@
 <div class="popup-box hidden" id="extendPopup">
   <h3 class="extend-title">📅 Validity পরিবর্তন করুন</h3>
   <div style="margin-bottom:8px;font-size:12px;color:var(--muted);font-family:'Share Tech Mono',monospace;" id="extendUserInfo"></div>
-  <div class="input-group" style="margin-bottom:12px;">
-    <label>New Expiry Date</label>
-    <input type="date" id="extendDate">
-  </div>
+  <div class="input-group" style="margin-bottom:12px;"><label>New Expiry Date</label><input type="date" id="extendDate"></div>
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
     <button class="preset-btn" onclick="setExtendPreset(7)">+7d</button>
     <button class="preset-btn" onclick="setExtendPreset(30)">+30d</button>
@@ -344,25 +252,13 @@
   <h3 class="ms-title">⚡ Per-User MS Delay</h3>
   <div style="margin-bottom:10px;font-size:12px;color:var(--muted);font-family:'Share Tech Mono',monospace;" id="msUserInfo"></div>
   <div class="user-ms-display" id="msUserCurrentDisplay">
-    <div class="user-ms-current">
-      <span class="user-ms-current-label">CURRENT DELAY 1</span>
-      <span class="user-ms-current-val" id="msUserCurrent1">—</span>
-    </div>
-    <div class="user-ms-current">
-      <span class="user-ms-current-label">CURRENT DELAY 2</span>
-      <span class="user-ms-current-val" id="msUserCurrent2">—</span>
-    </div>
+    <div class="user-ms-current"><span class="user-ms-current-label">CURRENT DELAY 1</span><span class="user-ms-current-val" id="msUserCurrent1">—</span></div>
+    <div class="user-ms-current"><span class="user-ms-current-label">CURRENT DELAY 2</span><span class="user-ms-current-val" id="msUserCurrent2">—</span></div>
     <div id="msUserSourceBadge"></div>
   </div>
   <div class="ms-popup-grid">
-    <div class="input-group">
-      <label>Delay 1 (ms)</label>
-      <input type="number" id="msUserVal1" placeholder="e.g. 990" min="100" max="9999">
-    </div>
-    <div class="input-group">
-      <label>Delay 2 (ms)</label>
-      <input type="number" id="msUserVal2" placeholder="e.g. 1150" min="100" max="9999">
-    </div>
+    <div class="input-group"><label>Delay 1 (ms)</label><input type="number" id="msUserVal1" placeholder="e.g. 990" min="100" max="9999"></div>
+    <div class="input-group"><label>Delay 2 (ms)</label><input type="number" id="msUserVal2" placeholder="e.g. 1150" min="100" max="9999"></div>
   </div>
   <div class="ms-popup-presets">
     <span>Preset:</span>
@@ -377,8 +273,7 @@
     <button class="btn btn-secondary" onclick="closeMsUserPopup()">Cancel</button>
   </div>
   <div style="margin-top:10px;font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;line-height:1.6;background:#030810;padding:8px;border-radius:6px;border-left:2px solid rgba(170,68,255,0.4);">
-    ℹ️ এই user reload দিলেই নতুন MS apply হবে।<br>
-    "Global এ Reset" দিলে per-user ms মুছে global default ব্যবহার করবে।
+    ℹ️ এই user reload দিলেই নতুন MS apply হবে।<br>"Global এ Reset" দিলে per-user ms মুছে global default ব্যবহার করবে।
   </div>
 </div>
 
@@ -389,182 +284,41 @@ let _currentUsers = {};
 let _extendKey = null;
 let _msUserKey = null;
 
-// ==================== SCRIPT MANAGER ====================
-
-function updateCharCount() {
-  const len = document.getElementById('scriptContent').value.length;
-  document.getElementById('charCount').textContent = len.toLocaleString();
-}
-
-function handleScriptTab(e) {
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    const ta = e.target;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    ta.value = ta.value.substring(0, start) + '  ' + ta.value.substring(end);
-    ta.selectionStart = ta.selectionEnd = start + 2;
-    updateCharCount();
-  }
-}
-
-async function loadScript() {
-  try {
-    const res = await fetch(`${SERVER_URL}/admin/get-script`, {
-      headers: { 'x-admin-secret': ADMIN_SECRET }
-    });
-    const d = await res.json();
-
-    const dot = document.getElementById('scriptStatusDot');
-    const statusText = document.getElementById('scriptStatusText');
-    const updatedEl = document.getElementById('scriptUpdatedAt');
-
-    if (d.content && d.content.trim().length > 0) {
-      document.getElementById('scriptContent').value = d.content;
-      dot.className = 'script-status-dot live';
-      statusText.textContent = `✅ Script live আছে · ${(d.size || d.content.length).toLocaleString()} chars`;
-      statusText.style.color = 'var(--success)';
-      if (d.updatedAt) {
-        const dt = new Date(d.updatedAt);
-        updatedEl.textContent = `Last updated: ${dt.toLocaleDateString('en-GB')} ${dt.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})}`;
-      }
-      updateCharCount();
-      log('✅ Script loaded from server', 'ok');
-    } else {
-      dot.className = 'script-status-dot empty';
-      statusText.textContent = '⚠️ কোনো script নেই — এখানে paste করে save করুন';
-      statusText.style.color = 'var(--warn)';
-      updatedEl.textContent = '';
-      log('⚠️ Server এ কোনো script নেই', 'warn');
-    }
-  } catch (err) {
-    log('❌ Script load failed: ' + err.message, 'err');
-  }
-}
-
-async function saveScript() {
-  const content = document.getElementById('scriptContent').value.trim();
-  if (!content) {
-    alert('Script empty! কিছু paste করুন আগে।');
-    return;
-  }
-  if (!confirm(`Server এ script save করবেন?\n\n${content.length.toLocaleString()} characters\n\nসকল licensed user এর extension এ এই নতুন script চলবে।`)) return;
-
-  try {
-    const res = await fetch(`${SERVER_URL}/admin/set-script`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ content })
-    });
-    const d = await res.json();
-    if (d.success) {
-      log(`✅ Script saved: ${(d.size || content.length).toLocaleString()} chars`, 'ok');
-      // status update
-      const dot = document.getElementById('scriptStatusDot');
-      const statusText = document.getElementById('scriptStatusText');
-      const updatedEl = document.getElementById('scriptUpdatedAt');
-      dot.className = 'script-status-dot live';
-      statusText.textContent = `✅ Script live আছে · ${content.length.toLocaleString()} chars`;
-      statusText.style.color = 'var(--success)';
-      const now = new Date();
-      updatedEl.textContent = `Last updated: ${now.toLocaleDateString('en-GB')} ${now.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})}`;
-    } else {
-      log('❌ Save failed: ' + (d.error || 'Unknown'), 'err');
-    }
-  } catch (err) {
-    log('❌ ' + err.message, 'err');
-  }
-}
-
-async function deleteScript() {
-  if (!confirm('Server থেকে script মুছবেন?\n\nExtension গুলো আর script পাবে না!')) return;
-  try {
-    const res = await fetch(`${SERVER_URL}/admin/delete-script`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({})
-    });
-    const d = await res.json();
-    if (d.success) {
-      document.getElementById('scriptContent').value = '';
-      updateCharCount();
-      const dot = document.getElementById('scriptStatusDot');
-      const statusText = document.getElementById('scriptStatusText');
-      dot.className = 'script-status-dot empty';
-      statusText.textContent = '⚠️ কোনো script নেই';
-      statusText.style.color = 'var(--warn)';
-      document.getElementById('scriptUpdatedAt').textContent = '';
-      log('🗑 Script deleted from server', 'warn');
-    }
-  } catch (err) {
-    log('❌ ' + err.message, 'err');
-  }
-}
-
-// ==================== MS VALUES (GLOBAL) ====================
-function setMsPreset(v1, v2) {
-  document.getElementById('msVal1').value = v1;
-  document.getElementById('msVal2').value = v2;
-}
+function setMsPreset(v1, v2) { document.getElementById('msVal1').value = v1; document.getElementById('msVal2').value = v2; }
 
 async function fetchMsValues() {
   try {
-    const res = await fetch(`${SERVER_URL}/admin/get-ms`, {
-      headers: { 'x-admin-secret': ADMIN_SECRET }
-    });
-    if (!res.ok) {
-      document.getElementById('currentMs1').textContent = '990 ms';
-      document.getElementById('currentMs2').textContent = '1150 ms';
-      document.getElementById('msVal1').value = 990;
-      document.getElementById('msVal2').value = 1150;
-      return;
-    }
+    const res = await fetch(`${SERVER_URL}/admin/get-ms`, { headers: { 'x-admin-secret': ADMIN_SECRET } });
+    if (!res.ok) { document.getElementById('currentMs1').textContent = '990 ms'; document.getElementById('currentMs2').textContent = '1150 ms'; document.getElementById('msVal1').value = 990; document.getElementById('msVal2').value = 1150; return; }
     const d = await res.json();
-    const ms1 = d.ms1 || 990;
-    const ms2 = d.ms2 || 1150;
+    const ms1 = d.ms1 || 990; const ms2 = d.ms2 || 1150;
     document.getElementById('currentMs1').textContent = ms1 + ' ms';
     document.getElementById('currentMs2').textContent = ms2 + ' ms';
     document.getElementById('msVal1').value = ms1;
     document.getElementById('msVal2').value = ms2;
-  } catch {
-    document.getElementById('currentMs1').textContent = '990 ms';
-    document.getElementById('currentMs2').textContent = '1150 ms';
-  }
+  } catch { document.getElementById('currentMs1').textContent = '990 ms'; document.getElementById('currentMs2').textContent = '1150 ms'; }
 }
 
 async function saveMsValues() {
   const ms1 = parseInt(document.getElementById('msVal1').value);
   const ms2 = parseInt(document.getElementById('msVal2').value);
-  if (!ms1 || !ms2 || ms1 < 100 || ms2 < 100) {
-    alert('Valid ms value দিন (minimum 100)!'); return;
-  }
+  if (!ms1 || !ms2 || ms1 < 100 || ms2 < 100) { alert('Valid ms value দিন (minimum 100)!'); return; }
   try {
-    const res = await fetch(`${SERVER_URL}/admin/set-ms`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ ms1, ms2 })
-    });
-    if (!res.ok) { log('⚠️ /admin/set-ms endpoint নেই। Server update করুন।', 'warn'); return; }
+    const res = await fetch(`${SERVER_URL}/admin/set-ms`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET }, body: JSON.stringify({ ms1, ms2 }) });
+    if (!res.ok) { log('⚠️ /admin/set-ms endpoint নেই।', 'warn'); return; }
     const d = await res.json();
-    if (d.success) {
-      log(`✅ Global MS saved: ${ms1}ms / ${ms2}ms`, 'ok');
-      document.getElementById('currentMs1').textContent = ms1 + ' ms';
-      document.getElementById('currentMs2').textContent = ms2 + ' ms';
-      fetchStatus();
-    } else log('❌ MS save failed: ' + (d.error || 'Unknown'), 'err');
+    if (d.success) { log(`✅ Global MS saved: ${ms1}ms / ${ms2}ms`, 'ok'); document.getElementById('currentMs1').textContent = ms1 + ' ms'; document.getElementById('currentMs2').textContent = ms2 + ' ms'; fetchStatus(); }
+    else log('❌ MS save failed: ' + (d.error || 'Unknown'), 'err');
   } catch (err) { log('❌ ' + err.message, 'err'); }
 }
 
-// ==================== PER-USER MS POPUP ====================
 function openMsUserPopup(key) {
   _msUserKey = key;
   const u = _currentUsers[key];
   document.getElementById('msUserInfo').textContent = `👤 ${u.name || key}  ·  ${key}`;
   const hasCustom = u.ms1 && u.ms2;
-  const ms1 = u.ms1 || '—';
-  const ms2 = u.ms2 || '—';
-  document.getElementById('msUserCurrent1').textContent = hasCustom ? ms1 + ' ms' : 'Global';
-  document.getElementById('msUserCurrent2').textContent = hasCustom ? ms2 + ' ms' : 'Global';
+  document.getElementById('msUserCurrent1').textContent = hasCustom ? u.ms1 + ' ms' : 'Global';
+  document.getElementById('msUserCurrent2').textContent = hasCustom ? u.ms2 + ' ms' : 'Global';
   const badge = document.getElementById('msUserSourceBadge');
   if (hasCustom) {
     badge.innerHTML = `<span class="ms-badge">Custom</span>`;
@@ -580,37 +334,19 @@ function openMsUserPopup(key) {
   document.getElementById('msUserOverlay').classList.remove('hidden');
   document.getElementById('msUserPopup').classList.remove('hidden');
 }
-
-function closeMsUserPopup() {
-  document.getElementById('msUserOverlay').classList.add('hidden');
-  document.getElementById('msUserPopup').classList.add('hidden');
-  _msUserKey = null;
-}
-
-function setMsUserPreset(v1, v2) {
-  document.getElementById('msUserVal1').value = v1;
-  document.getElementById('msUserVal2').value = v2;
-}
+function closeMsUserPopup() { document.getElementById('msUserOverlay').classList.add('hidden'); document.getElementById('msUserPopup').classList.add('hidden'); _msUserKey = null; }
+function setMsUserPreset(v1, v2) { document.getElementById('msUserVal1').value = v1; document.getElementById('msUserVal2').value = v2; }
 
 async function saveMsUserValues() {
   if (!_msUserKey) return;
   const ms1 = parseInt(document.getElementById('msUserVal1').value);
   const ms2 = parseInt(document.getElementById('msUserVal2').value);
-  if (!ms1 || !ms2 || ms1 < 100 || ms2 < 100) {
-    alert('Valid ms value দিন (minimum 100)!'); return;
-  }
+  if (!ms1 || !ms2 || ms1 < 100 || ms2 < 100) { alert('Valid ms value দিন!'); return; }
   try {
-    const res = await fetch(`${SERVER_URL}/admin/set-user-ms`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ key: _msUserKey, ms1, ms2 })
-    });
+    const res = await fetch(`${SERVER_URL}/admin/set-user-ms`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET }, body: JSON.stringify({ key: _msUserKey, ms1, ms2 }) });
     const d = await res.json();
-    if (d.success) {
-      log(`✅ Per-user MS set: ${_msUserKey} → ${ms1}ms / ${ms2}ms`, 'ok');
-      closeMsUserPopup();
-      fetchStatus();
-    } else log('❌ ' + (d.error || 'Failed'), 'err');
+    if (d.success) { log(`✅ Per-user MS set: ${_msUserKey} → ${ms1}ms / ${ms2}ms`, 'ok'); closeMsUserPopup(); fetchStatus(); }
+    else log('❌ ' + (d.error || 'Failed'), 'err');
   } catch (err) { log('❌ ' + err.message, 'err'); }
 }
 
@@ -618,78 +354,62 @@ async function clearMsUserValues() {
   if (!_msUserKey) return;
   if (!confirm(`${_msUserKey} এর custom MS মুছে global এ reset করবেন?`)) return;
   try {
-    const res = await fetch(`${SERVER_URL}/admin/set-user-ms`, {
+    const res = await fetch(`${SERVER_URL}/admin/set-user-ms`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET }, body: JSON.stringify({ key: _msUserKey, ms1: null, ms2: null }) });
+    const d = await res.json();
+    if (d.success) { log(`🔄 Per-user MS cleared: ${_msUserKey}`, 'info'); closeMsUserPopup(); fetchStatus(); }
+    else log('❌ ' + (d.error || 'Failed'), 'err');
+  } catch (err) { log('❌ ' + err.message, 'err'); }
+}
+
+// ==================== BROWSER RESET ====================
+async function resetBrowser(key) {
+  if (!confirm(`"${key}" এর browser lock reset করবেন?
+Reset করলে যেকোনো browser এ আবার চলবে।`)) return;
+  try {
+    const res = await fetch(`${SERVER_URL}/admin/reset-browser`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ key: _msUserKey, ms1: null, ms2: null })
+      body: JSON.stringify({ key })
     });
     const d = await res.json();
-    if (d.success) {
-      log(`🔄 Per-user MS cleared: ${_msUserKey} (using global now)`, 'info');
-      closeMsUserPopup();
-      fetchStatus();
-    } else log('❌ ' + (d.error || 'Failed'), 'err');
+    if (d.success) { log('🔓 Browser lock reset: ' + key, 'ok'); fetchStatus(); }
+    else log('❌ ' + (d.error || 'Failed'), 'err');
   } catch (err) { log('❌ ' + err.message, 'err'); }
 }
 
 // ==================== BACKUP ====================
 function saveBackup() {
   if (Object.keys(_currentUsers).length === 0) { log('⚠️ কোনো user নেই', 'warn'); return; }
-  const b = { users: _currentUsers, savedAt: new Date().toISOString() };
-  localStorage.setItem(BACKUP_KEY, JSON.stringify(b));
-  updateBackupUI();
-  log('💾 Backup saved: ' + Object.keys(_currentUsers).length + ' users', 'ok');
+  localStorage.setItem(BACKUP_KEY, JSON.stringify({ users: _currentUsers, savedAt: new Date().toISOString() }));
+  updateBackupUI(); log('💾 Backup saved: ' + Object.keys(_currentUsers).length + ' users', 'ok');
 }
-function loadBackup() {
-  try { const r = localStorage.getItem(BACKUP_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
-}
+function loadBackup() { try { const r = localStorage.getItem(BACKUP_KEY); return r ? JSON.parse(r) : null; } catch { return null; } }
 function updateBackupUI() {
-  const b = loadBackup();
-  const el = document.getElementById('backupInfo');
-  const rb = document.getElementById('restoreBtn');
+  const b = loadBackup(); const el = document.getElementById('backupInfo'); const rb = document.getElementById('restoreBtn');
   if (!b) { el.innerHTML = '<span style="color:var(--muted)">No backup found</span>'; rb.style.display = 'none'; return; }
-  const d = new Date(b.savedAt);
-  const cnt = Object.keys(b.users || {}).length;
+  const d = new Date(b.savedAt); const cnt = Object.keys(b.users || {}).length;
   el.innerHTML = `✅ <strong style="color:var(--success)">${cnt} টি license key backup আছে</strong><br><small style="color:var(--muted)">Last backup: ${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}, ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</small>`;
   rb.style.display = '';
 }
 async function restoreFromBackup() {
-  const b = loadBackup();
-  if (!b) { alert('কোনো backup নেই!'); return; }
+  const b = loadBackup(); if (!b) { alert('কোনো backup নেই!'); return; }
   const cnt = Object.keys(b.users || {}).length;
-  if (!confirm(`Server এ restore করবেন?\n• ${cnt} জন user\n\nServer এর বর্তমান data replace হবে।`)) return;
-  log('🔄 Restoring...', 'info');
-  let ok = 0, fail = 0;
+  if (!confirm(`Server এ restore করবেন?
+• ${cnt} জন user`)) return;
+  log('🔄 Restoring...', 'info'); let ok = 0, fail = 0;
   for (const [key, user] of Object.entries(b.users || {})) {
     try {
       const expiryStr = user.expiry ? user.expiry.split('T')[0] : null;
-      const res = await fetch(`${SERVER_URL}/admin/add-user`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-        body: JSON.stringify({ key, name: user.name, expiry: expiryStr })
-      });
+      const res = await fetch(`${SERVER_URL}/admin/add-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET }, body: JSON.stringify({ key, name: user.name, expiry: expiryStr }) });
       const d = await res.json();
-      if (d.success && !user.active) {
-        await fetch(`${SERVER_URL}/admin/toggle-user`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-          body: JSON.stringify({ key, active: false })
-        });
-      }
-      if (d.success && user.ms1 && user.ms2) {
-        await fetch(`${SERVER_URL}/admin/set-user-ms`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-          body: JSON.stringify({ key, ms1: user.ms1, ms2: user.ms2 })
-        });
-      }
+      if (d.success && !user.active) await fetch(`${SERVER_URL}/admin/toggle-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET }, body: JSON.stringify({ key, active: false }) });
+      if (d.success && user.ms1 && user.ms2) await fetch(`${SERVER_URL}/admin/set-user-ms`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET }, body: JSON.stringify({ key, ms1: user.ms1, ms2: user.ms2 }) });
       ok++;
     } catch { fail++; }
   }
-  log(`✅ Restore done: ${ok} users${fail > 0 ? ', ' + fail + ' failed' : ''}`, 'ok');
-  fetchStatus();
+  log(`✅ Restore done: ${ok} users${fail > 0 ? ', ' + fail + ' failed' : ''}`, 'ok'); fetchStatus();
 }
-function clearBackup() {
-  if (!confirm('Local backup মুছবেন?')) return;
-  localStorage.removeItem(BACKUP_KEY); updateBackupUI(); log('🗑 Backup cleared', 'warn');
-}
+function clearBackup() { if (!confirm('Local backup মুছবেন?')) return; localStorage.removeItem(BACKUP_KEY); updateBackupUI(); log('🗑 Backup cleared', 'warn'); }
 
 // ==================== AUTH ====================
 function login() {
@@ -701,19 +421,13 @@ function login() {
   document.getElementById('loginSection').classList.add('hidden');
   document.getElementById('mainPanel').classList.remove('hidden');
   log('Logged in: ' + SERVER_URL, 'info');
-  updateBackupUI(); fetchStatus(); fetchMsValues(); loadScript();
+  updateBackupUI(); fetchStatus(); fetchMsValues();
 }
-function logout() {
-  sessionStorage.clear();
-  document.getElementById('loginSection').classList.remove('hidden');
-  document.getElementById('mainPanel').classList.add('hidden');
-  document.getElementById('adminSecret').value = '';
-}
+function logout() { sessionStorage.clear(); document.getElementById('loginSection').classList.remove('hidden'); document.getElementById('mainPanel').classList.add('hidden'); document.getElementById('adminSecret').value = ''; }
 window.addEventListener('DOMContentLoaded', () => {
   const url = sessionStorage.getItem('ll_url'), secret = sessionStorage.getItem('ll_secret');
   if (url && secret) { document.getElementById('serverUrl').value = url; document.getElementById('adminSecret').value = secret; login(); }
-  setNewExpiry(30);
-  updateBackupUI();
+  setNewExpiry(30); updateBackupUI();
 });
 
 // ==================== FETCH ====================
@@ -724,10 +438,7 @@ async function fetchStatus() {
     const data = await res.json();
     _currentUsers = data.users || {};
     renderUsers(_currentUsers);
-    if (Object.keys(_currentUsers).length > 0) {
-      localStorage.setItem(BACKUP_KEY, JSON.stringify({ users: _currentUsers, savedAt: new Date().toISOString() }));
-      updateBackupUI();
-    }
+    if (Object.keys(_currentUsers).length > 0) { localStorage.setItem(BACKUP_KEY, JSON.stringify({ users: _currentUsers, savedAt: new Date().toISOString() })); updateBackupUI(); }
     log(`Loaded: ${data.totalUsers} users, ${data.activeCount} active`, 'ok');
   } catch (err) {
     log('Server connect failed: ' + err.message, 'err');
@@ -751,18 +462,13 @@ function renderUsers(users) {
   document.getElementById('cActive').textContent = active;
   document.getElementById('cExpired').textContent = expired;
   document.getElementById('cDisabled').textContent = disabled;
-
-  if (keys.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">No users yet. Add above.</div></td></tr>';
-    return;
-  }
+  if (keys.length === 0) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">No users yet. Add above.</div></td></tr>'; return; }
 
   tbody.innerHTML = keys.map((key, i) => {
     const u = users[key];
     const expDate = u.expiry ? new Date(u.expiry) : null;
     const daysLeft = expDate ? Math.ceil((expDate - now) / (1000 * 60 * 60 * 24)) : null;
     let expiryHtml, statusBadge;
-
     if (!u.active) {
       expiryHtml = expDate ? `<span class="expiry-text">${expDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>` : '<span class="expiry-text">Not set</span>';
       statusBadge = `<span class="badge badge-disabled">⛔ DISABLED</span>`;
@@ -777,15 +483,16 @@ function renderUsers(users) {
       expiryHtml = `<span class="expiry-text ${cls}">${expDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}<br>${daysLeft}d left</span>`;
       statusBadge = `<span class="badge badge-active">✅ ACTIVE</span>`;
     }
-
     const hasCustomMs = u.ms1 && u.ms2;
-    const msBadge = hasCustomMs
-      ? `<span class="ms-badge">${u.ms1}/${u.ms2}ms</span>`
-      : `<span class="ms-badge global">global</span>`;
-
+    const msBadge = hasCustomMs ? `<span class="ms-badge">${u.ms1}/${u.ms2}ms</span>` : `<span class="ms-badge global">global</span>`;
     const toggleBtn = u.active
       ? `<button class="btn btn-warn btn-sm" onclick="toggleUser('${key}',false)">Disable</button>`
       : `<button class="btn btn-primary btn-sm" onclick="toggleUser('${key}',true)">Enable</button>`;
+
+    // Browser lock button — locked হলে orange Reset button, না হলে ছোট "No Lock" text
+    const browserBtn = u.browserFp
+      ? `<button class="btn btn-sm btn-reset-browser" onclick="resetBrowser('${key}')">🔓 Reset Browser</button>`
+      : `<span class="lock-badge unlocked">🔒 No Lock</span>`;
 
     return `<tr>
       <td style="color:var(--muted);font-family:'Share Tech Mono',monospace;">${i + 1}</td>
@@ -798,13 +505,13 @@ function renderUsers(users) {
         <button class="btn btn-ms btn-sm" onclick="openMsUserPopup('${key}')">⚡ MS</button>
         <button class="btn btn-success btn-sm" onclick="openExtendPopup('${key}')">📅</button>
         ${toggleBtn}
+        ${browserBtn}
         <button class="btn btn-danger btn-sm" onclick="deleteUser('${key}')">✕</button>
       </div></td>
     </tr>`;
   }).join('');
 }
 
-// ==================== ADD USER ====================
 async function addUser() {
   const name = document.getElementById('newUserName').value.trim();
   const key = document.getElementById('newUserKey').value.trim().toUpperCase();
@@ -812,74 +519,44 @@ async function addUser() {
   if (!key) { alert('License Key দিন!'); return; }
   if (!expiry) { alert('Expiry Date দিন!'); return; }
   try {
-    const res = await fetch(`${SERVER_URL}/admin/add-user`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ key, name: name || key, expiry })
-    });
+    const res = await fetch(`${SERVER_URL}/admin/add-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET }, body: JSON.stringify({ key, name: name || key, expiry }) });
     const d = await res.json();
-    if (d.success) {
-      log(`✅ Added: ${name || key} · Key: ${key} · Expiry: ${expiry}`, 'ok');
-      document.getElementById('newUserName').value = '';
-      document.getElementById('newUserKey').value = '';
-      setNewExpiry(30);
-      fetchStatus();
-    } else log('❌ Failed: ' + (d.error || 'Unknown'), 'err');
+    if (d.success) { log(`✅ Added: ${name || key} · Key: ${key} · Expiry: ${expiry}`, 'ok'); document.getElementById('newUserName').value = ''; document.getElementById('newUserKey').value = ''; setNewExpiry(30); fetchStatus(); }
+    else log('❌ Failed: ' + (d.error || 'Unknown'), 'err');
   } catch (err) { log('❌ ' + err.message, 'err'); }
 }
-
 function generateKey() {
   const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const r = n => Array.from({ length: n }, () => c[Math.floor(Math.random() * c.length)]).join('');
   document.getElementById('newUserKey').value = `LUCKY-${r(4)}-${r(4)}-${r(4)}`;
 }
-function setNewExpiry(days) {
-  const d = new Date(); d.setDate(d.getDate() + days);
-  document.getElementById('newUserExpiry').value = d.toISOString().split('T')[0];
-}
+function setNewExpiry(days) { const d = new Date(); d.setDate(d.getDate() + days); document.getElementById('newUserExpiry').value = d.toISOString().split('T')[0]; }
 
-// ==================== EXTEND POPUP ====================
 function openExtendPopup(key) {
-  _extendKey = key;
-  const u = _currentUsers[key];
+  _extendKey = key; const u = _currentUsers[key];
   document.getElementById('extendUserInfo').textContent = `👤 ${u.name || key}  ·  ${key}`;
   const exp = u.expiry ? u.expiry.split('T')[0] : '';
   document.getElementById('extendDate').value = exp;
   document.getElementById('extendOverlay').classList.remove('hidden');
   document.getElementById('extendPopup').classList.remove('hidden');
 }
-function closeExtendPopup() {
-  document.getElementById('extendOverlay').classList.add('hidden');
-  document.getElementById('extendPopup').classList.add('hidden');
-  _extendKey = null;
-}
-function setExtendPreset(days) {
-  const d = new Date(); d.setDate(d.getDate() + days);
-  document.getElementById('extendDate').value = d.toISOString().split('T')[0];
-}
+function closeExtendPopup() { document.getElementById('extendOverlay').classList.add('hidden'); document.getElementById('extendPopup').classList.add('hidden'); _extendKey = null; }
+function setExtendPreset(days) { const d = new Date(); d.setDate(d.getDate() + days); document.getElementById('extendDate').value = d.toISOString().split('T')[0]; }
 async function applyExtend() {
   if (!_extendKey) return;
   const expiry = document.getElementById('extendDate').value;
   if (!expiry) { alert('Date দিন!'); return; }
   try {
-    const res = await fetch(`${SERVER_URL}/admin/set-user-expiry`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ key: _extendKey, expiry })
-    });
+    const res = await fetch(`${SERVER_URL}/admin/set-user-expiry`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET }, body: JSON.stringify({ key: _extendKey, expiry }) });
     const d = await res.json();
-    if (d.success) {
-      log(`✅ Validity updated: ${_extendKey} → ${expiry}`, 'ok');
-      closeExtendPopup(); fetchStatus();
-    } else log('❌ ' + d.error, 'err');
+    if (d.success) { log(`✅ Validity updated: ${_extendKey} → ${expiry}`, 'ok'); closeExtendPopup(); fetchStatus(); }
+    else log('❌ ' + d.error, 'err');
   } catch (err) { log('❌ ' + err.message, 'err'); }
 }
 
-// ==================== TOGGLE / DELETE ====================
 async function toggleUser(key, active) {
   try {
-    const res = await fetch(`${SERVER_URL}/admin/toggle-user`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ key, active })
-    });
+    const res = await fetch(`${SERVER_URL}/admin/toggle-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET }, body: JSON.stringify({ key, active }) });
     const d = await res.json();
     if (d.success) { log(`${active ? '✅ Enabled' : '⛔ Disabled'}: ${key}`, active ? 'ok' : 'err'); fetchStatus(); }
   } catch (err) { log('❌ ' + err.message, 'err'); }
@@ -887,16 +564,12 @@ async function toggleUser(key, active) {
 async function deleteUser(key) {
   if (!confirm(`"${key}" delete করবেন?`)) return;
   try {
-    const res = await fetch(`${SERVER_URL}/admin/delete-user`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ key })
-    });
+    const res = await fetch(`${SERVER_URL}/admin/delete-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET }, body: JSON.stringify({ key }) });
     const d = await res.json();
     if (d.success) { log(`🗑 Deleted: ${key}`, 'info'); fetchStatus(); }
   } catch (err) { log('❌ ' + err.message, 'err'); }
 }
 
-// ==================== LOG ====================
 function log(msg, type = 'info') {
   const box = document.getElementById('logBox');
   const time = new Date().toTimeString().split(' ')[0];
