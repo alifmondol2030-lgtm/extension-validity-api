@@ -27,6 +27,7 @@ function checkAdmin(req, res) {
   return true;
 }
 
+// ==================== MS HELPERS ====================
 async function getGlobalMsValues() {
   const doc = await getSettings().findOne({ _id: "ms_values" });
   return { ms1: doc?.ms1 || 990, ms2: doc?.ms2 || 1150 };
@@ -34,46 +35,28 @@ async function getGlobalMsValues() {
 
 // ==================== PUBLIC ENDPOINTS ====================
 
+// PUBLIC: Check license
 app.get("/check", async (req, res) => {
   const licenseKey = (req.headers["x-license-key"] || req.query.key || "").toUpperCase();
-  const browserFingerprint = req.headers["x-browser-fp"] || null;
-
   if (!licenseKey) return res.json({ valid: false, reason: "No license key" });
   const user = await getUsers().findOne({ key: licenseKey });
   if (!user) return res.json({ valid: false, reason: "License key not found" });
   if (!user.active) return res.json({ valid: false, reason: "Your license has been disabled" });
   if (!user.expiry) return res.json({ valid: false, reason: "No expiry set" });
-
   const now = new Date();
   const expiry = new Date(user.expiry);
   if (now > expiry) return res.json({ valid: false, reason: "Your license has expired" });
-
-  // ── Browser Lock ──
-  if (browserFingerprint) {
-    if (!user.browserFp) {
-      // প্রথমবার — fingerprint save করো
-      await getUsers().updateOne(
-        { key: licenseKey },
-        { $set: { browserFp: browserFingerprint, browserLockedAt: new Date().toISOString() } }
-      );
-      console.log(`[Lock] Browser locked for: ${licenseKey}`);
-    } else if (user.browserFp !== browserFingerprint) {
-      // অন্য browser — block
-      return res.json({
-        valid: false,
-        reason: "This license is locked to another browser. Contact your admin to reset."
-      });
-    }
-  }
-
   const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
 
+  // per-user ms আছে কিনা দেখো, না থাকলে global নাও
   let ms1, ms2;
   if (user.ms1 && user.ms2) {
-    ms1 = user.ms1; ms2 = user.ms2;
+    ms1 = user.ms1;
+    ms2 = user.ms2;
   } else {
     const global = await getGlobalMsValues();
-    ms1 = global.ms1; ms2 = global.ms2;
+    ms1 = global.ms1;
+    ms2 = global.ms2;
   }
 
   return res.json({
@@ -82,16 +65,19 @@ app.get("/check", async (req, res) => {
     daysLeft,
     reason: "Active",
     userName: user.name || licenseKey,
-    browserLocked: !!user.browserFp,
-    ms1, ms2
+    ms1,
+    ms2
   });
 });
 
+// PUBLIC: Get MS values (userscript /get-ms call করে)
 app.get("/get-ms", async (req, res) => {
   const licenseKey = (req.headers["x-license-key"] || req.query.key || "").toUpperCase();
   if (licenseKey) {
     const user = await getUsers().findOne({ key: licenseKey });
-    if (user && user.ms1 && user.ms2) return res.json({ ms1: user.ms1, ms2: user.ms2 });
+    if (user && user.ms1 && user.ms2) {
+      return res.json({ ms1: user.ms1, ms2: user.ms2 });
+    }
   }
   const ms = await getGlobalMsValues();
   res.json({ ms1: ms.ms1, ms2: ms.ms2 });
@@ -99,6 +85,7 @@ app.get("/get-ms", async (req, res) => {
 
 // ==================== ADMIN ENDPOINTS ====================
 
+// ADMIN: Status
 app.get("/admin/status", async (req, res) => {
   if (!checkAdmin(req, res)) return;
   const users = await getUsers().find({}).toArray();
@@ -107,10 +94,12 @@ app.get("/admin/status", async (req, res) => {
   const usersObj = {};
   users.forEach(u => {
     usersObj[u.key] = {
-      name: u.name, active: u.active, expiry: u.expiry,
-      addedAt: u.addedAt, ms1: u.ms1 || null, ms2: u.ms2 || null,
-      browserFp: u.browserFp || null,
-      browserLockedAt: u.browserLockedAt || null
+      name: u.name,
+      active: u.active,
+      expiry: u.expiry,
+      addedAt: u.addedAt,
+      ms1: u.ms1 || null,
+      ms2: u.ms2 || null
     };
     if (!u.active) disabledCount++;
     else if (!u.expiry || new Date(u.expiry) < now) expiredCount++;
@@ -119,6 +108,7 @@ app.get("/admin/status", async (req, res) => {
   res.json({ totalUsers: users.length, activeCount, expiredCount, disabledCount, users: usersObj });
 });
 
+// ADMIN: Add user
 app.post("/admin/add-user", async (req, res) => {
   if (!checkAdmin(req, res)) return;
   const { key, name, expiry } = req.body;
@@ -132,6 +122,7 @@ app.post("/admin/add-user", async (req, res) => {
   res.json({ success: true });
 });
 
+// ADMIN: Set user expiry
 app.post("/admin/set-user-expiry", async (req, res) => {
   if (!checkAdmin(req, res)) return;
   const { key, expiry } = req.body;
@@ -144,6 +135,7 @@ app.post("/admin/set-user-expiry", async (req, res) => {
   res.json({ success: true });
 });
 
+// ADMIN: Toggle user
 app.post("/admin/toggle-user", async (req, res) => {
   if (!checkAdmin(req, res)) return;
   const { key, active } = req.body;
@@ -152,6 +144,7 @@ app.post("/admin/toggle-user", async (req, res) => {
   res.json({ success: true });
 });
 
+// ADMIN: Delete user
 app.post("/admin/delete-user", async (req, res) => {
   if (!checkAdmin(req, res)) return;
   const { key } = req.body;
@@ -160,12 +153,14 @@ app.post("/admin/delete-user", async (req, res) => {
   res.json({ success: true });
 });
 
+// ADMIN: Get global MS values
 app.get("/admin/get-ms", async (req, res) => {
   if (!checkAdmin(req, res)) return;
   const ms = await getGlobalMsValues();
   res.json({ ms1: ms.ms1, ms2: ms.ms2 });
 });
 
+// ADMIN: Set global MS values
 app.post("/admin/set-ms", async (req, res) => {
   if (!checkAdmin(req, res)) return;
   const { ms1, ms2 } = req.body;
@@ -175,36 +170,34 @@ app.post("/admin/set-ms", async (req, res) => {
     { $set: { _id: "ms_values", ms1: parseInt(ms1), ms2: parseInt(ms2), updatedAt: new Date().toISOString() } },
     { upsert: true }
   );
+  console.log(`[Admin] Global MS values updated: ${ms1}ms / ${ms2}ms`);
   res.json({ success: true, ms1: parseInt(ms1), ms2: parseInt(ms2) });
 });
 
+// ADMIN: Set per-user MS values
 app.post("/admin/set-user-ms", async (req, res) => {
   if (!checkAdmin(req, res)) return;
   const { key, ms1, ms2 } = req.body;
   if (!key) return res.status(400).json({ error: "key required" });
   const k = key.toUpperCase();
+
   if (ms1 === null && ms2 === null) {
+    // per-user ms মুছে দাও — global এ ফিরে যাবে
     await getUsers().updateOne({ key: k }, { $unset: { ms1: "", ms2: "" } });
+    console.log(`[Admin] Per-user MS cleared for: ${k} (will use global)`);
     return res.json({ success: true, cleared: true });
   }
-  if (!ms1 || !ms2 || parseInt(ms1) < 100 || parseInt(ms2) < 100)
-    return res.status(400).json({ error: "Valid ms1 and ms2 required (min 100)" });
-  await getUsers().updateOne({ key: k }, { $set: { ms1: parseInt(ms1), ms2: parseInt(ms2) } });
-  res.json({ success: true, ms1: parseInt(ms1), ms2: parseInt(ms2) });
-});
 
-// ── ADMIN: Reset browser lock ──
-app.post("/admin/reset-browser", async (req, res) => {
-  if (!checkAdmin(req, res)) return;
-  const { key } = req.body;
-  if (!key) return res.status(400).json({ error: "key required" });
-  const result = await getUsers().updateOne(
-    { key: key.toUpperCase() },
-    { $unset: { browserFp: "", browserLockedAt: "" } }
+  if (!ms1 || !ms2 || parseInt(ms1) < 100 || parseInt(ms2) < 100) {
+    return res.status(400).json({ error: "Valid ms1 and ms2 required (min 100)" });
+  }
+
+  await getUsers().updateOne(
+    { key: k },
+    { $set: { ms1: parseInt(ms1), ms2: parseInt(ms2) } }
   );
-  if (result.matchedCount === 0) return res.status(404).json({ error: "User not found" });
-  console.log(`[Admin] Browser lock reset for: ${key}`);
-  res.json({ success: true });
+  console.log(`[Admin] Per-user MS set for ${k}: ${ms1}ms / ${ms2}ms`);
+  res.json({ success: true, ms1: parseInt(ms1), ms2: parseInt(ms2) });
 });
 
 const PORT = process.env.PORT || 3000;
